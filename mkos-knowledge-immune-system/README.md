@@ -2,7 +2,7 @@
 
 Automated quality management for knowledge bases using a two-phase detection pipeline inspired by biological immune systems. Detects hallucinations, staleness, bias, and contradictions in unstructured text.
 
-> **Paper:** [MKOS: A Biomimetic Architecture for Knowledge Base Quality Management](paper/mkos_paper.pdf)
+> **Paper:** [MKOS: A Biomimetic Architecture for Knowledge Base Quality Management](./paper/mkos_paper.pdf)
 
 ## Problem
 
