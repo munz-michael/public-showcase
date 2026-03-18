@@ -119,11 +119,11 @@ quadrantChart
     quadrant-2 Low echo, high consensus
     quadrant-3 Low echo, low consensus
     quadrant-4 High echo, low consensus
-    CxC Standard: [0.78, 0.90]
-    CxC Adversarial: [0.80, 0.72]
-    GxC Standard: [0.52, 0.85]
-    GxC Adversarial: [0.55, 0.19]
-    Delphi-2: [0.58, 0.97]
+    CxC Standard: [0.78, 0.80]
+    CxC Adversarial: [0.80, 0.65]
+    GxC Standard: [0.45, 0.73]
+    GxC Adversarial: [0.48, 0.15]
+    Delphi-2: [0.50, 0.85]
 ```
 
 | Dimension | Metric | Primary lever | Effect |
