@@ -47,7 +47,7 @@ Data Flow per Tick:
 4. **Municipal level is optimal** — zero withdrawals needed, mechanism works as "dormant institution" (Serdult 2015)
 5. **Information asymmetry is the real challenge** — Strategic Minimum politicians exploit low visibility to break invisible promises unpunished (Corollary 4)
 
-Full findings: [FINDINGS.md](FINDINGS.md) | Paper draft: [paper/draft.md](paper/draft.md)
+Full findings: [FINDINGS.md](FINDINGS.md) | Paper draft: [paper/degressive_democracy_irreversible_vote_withdrawal.md](paper/degressive_democracy_irreversible_vote_withdrawal.md)
 
 ## Quick Start
 
