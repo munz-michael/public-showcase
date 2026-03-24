@@ -4,6 +4,41 @@
 
 > Citizens can withdraw their vote from an elected politician **once per legislative term, irreversibly**. This creates continuous accountability pressure. Our simulation (249 tests, 21 modules) shows: promise-keeping is a Nash equilibrium, populists are always eliminated, and at municipal level the mere existence of the mechanism suffices as deterrence.
 
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                      Simulation Layer                            │
+│  simulation.py · germany.py · municipal.py · exploits.py         │
+│  18 scenarios: baseline, transparency, evolution, exploits ...   │
+├──────────────────────────────────────────────────────────────────┤
+│                     Orchestration Layer                           │
+│  election.py: tick loop · vote tracking · external shocks        │
+│  advanced.py: public counter · factions · coalitions · snap elec │
+├────────────────┬────────────────┬────────────────────────────────┤
+│  Citizen Agent │  Politician    │  Analysis                      │
+│                │  Agent         │                                │
+│  satisfaction  │  effort alloc  │  game_theory.py: Nash proof    │
+│  (Prospect Th) │  5 strategies  │  validation.py: cross-valid    │
+│  withdrawal    │  power calc    │  sensitivity.py: param sweep   │
+│  peer influence│  promise mgmt  │  evolution.py: multi-term      │
+│  6 types       │  snap election │  empirical.py: backtesting     │
+├────────────────┴────────────────┴────────────────────────────────┤
+│                       Domain Model                               │
+│  models.py: Vote · Promise · CitizenState · PoliticianState      │
+│  PowerModel (4) · ExternalShock · ElectionConfig                 │
+├──────────────────────────────────────────────────────────────────┤
+│                    Metrics + Visualization                        │
+│  metrics.py: accountability · power curves · Pearson correlation  │
+│  visualize.py: 6 chart types · dashboard.py: interactive HTML    │
+└──────────────────────────────────────────────────────────────────┘
+
+Data Flow per Tick:
+  Politician → allocate_effort() → PromiseState.progress++
+  Citizen    → update_satisfaction() → satisfaction (Prospect Theory)
+  Citizen    → decide_withdrawal() → irreversible, once per term
+  IF withdraw: PoliticianState.current_votes-- → power drops
+  Feedback:    less power → less effort → more broken promises → more withdrawals
+```
+
 ## Key Findings
 
 1. **Promise-keeping is Nash equilibrium** — formally proven (Theorem 1) and robust across 4 satisfaction models including Prospect Theory
