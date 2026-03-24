@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "degressive-democracy"
+version = "0.1.0"
+description = "Agent-based simulation of degressive voting: irreversible vote withdrawal as democratic accountability mechanism"
+readme = {text = "Agent-based simulation of degressive voting rights. See https://github.com for full documentation.", content-type = "text/plain"}
+requires-python = ">=3.11"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Michael Munz"},
+]
+keywords = ["agent-based-model", "democracy", "game-theory", "simulation", "political-science", "nash-equilibrium"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+[project.optional-dependencies]
+viz = ["matplotlib>=3.8"]
+dev = ["pytest>=8.0"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["degressive_democracy*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

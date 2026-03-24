@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Degressive Democracy — Interactive Simulation</title>
+<style>
+/* === RESET & BASE === */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#ffffff;--surface:#f5f5f5;--border:#cccccc;--text:#111111;--muted:#555555;
+  --green:#16873d;--red:#d42020;--orange:#c47a00;--blue:#1a73e8;--purple:#7c3aed;
+  --green-bg:rgba(22,135,61,0.08);--red-bg:rgba(212,32,32,0.08);--orange-bg:rgba(196,122,0,0.08);
+  --snap-red:#d42020;
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;line-height:1.5}
+.container{max-width:1400px;margin:0 auto;padding:20px}
+
+/* === LANGUAGE === */
+[data-lang="en"]{display:none}
+body.en [data-lang="en"]{display:block}body.en [data-lang="de"]{display:none}
+body.en span[data-lang="en"]{display:inline}span[data-lang="en"]{display:none}
+body.en span[data-lang="de"]{display:none}span[data-lang="de"]{display:inline}
+
+/* === HEADER === */
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.header h1{font-size:28px;font-weight:700;letter-spacing:-0.5px}
+.header h1 span.accent{color:var(--blue)}
+.subtitle{color:var(--muted);font-size:15px;margin-top:2px}
+.lang-toggle{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:3px;gap:0}
+.lang-toggle button{background:transparent;color:var(--muted);border:none;padding:5px 14px;border-radius:16px;cursor:pointer;font-size:12px;font-weight:600;transition:all 0.2s}
+.lang-toggle button.active{background:var(--blue);color:#fff}
+
+/* === INTRO CARD === */
+.intro{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:20px;border-left:4px solid var(--blue)}
+.intro h3{font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:var(--blue);margin-bottom:8px}
+.intro p{font-size:14px;color:var(--text);margin-bottom:6px}
+.intro .hint{font-size:12px;color:var(--muted)}
+.mechanic-chips{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.chip{font-size:11px;padding:4px 10px;border-radius:12px;border:1px solid var(--border);color:var(--muted)}
+.chip.key{border-color:var(--blue);color:var(--blue);background:rgba(0,80,179,0.1);font-weight:600}
+
+/* === CONTROLS === */
+.controls{display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap}
+.controls select{background:var(--surface);color:var(--text);border:1px solid var(--border);padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;min-width:200px}
+.controls select:focus{border-color:var(--blue);outline:none}
+.btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:600;transition:all 0.15s;background:var(--surface);color:var(--text)}
+.btn:hover{border-color:var(--blue)}
+.btn-play{background:#1a7f37;border-color:#1a7f37;color:#fff}
+.btn-play:hover{background:#2da44e}
+.btn-play.playing{background:var(--red);border-color:var(--red)}
+.speed-control{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.speed-control input{width:80px;accent-color:var(--blue)}
+
+/* === TIMELINE === */
+.timeline{position:relative;height:48px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:20px;overflow:hidden}
+.timeline-progress{height:100%;background:linear-gradient(90deg,rgba(9,105,218,0.12),rgba(9,105,218,0.03));transition:width 0.3s ease;position:relative}
+.timeline-marker{position:absolute;top:0;height:100%;border-left:1px dashed var(--border);display:flex;align-items:flex-end;padding:0 4px}
+.timeline-marker span{font-size:9px;color:var(--muted);white-space:nowrap;transform:translateY(-2px)}
+.timeline-snap{position:absolute;top:0;height:100%;width:2px;background:var(--snap-red);z-index:2}
+.timeline-snap::after{content:"NEUWAHL";position:absolute;top:2px;left:4px;font-size:8px;color:var(--snap-red);font-weight:700;letter-spacing:1px;white-space:nowrap}
+.timeline-tick{position:absolute;top:6px;font-size:22px;font-weight:700;color:var(--blue);font-variant-numeric:tabular-nums;left:12px}
+.timeline-label{position:absolute;top:32px;font-size:10px;color:var(--muted);left:12px}
+
+/* === GRID === */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative;overflow:hidden}
+.panel.full{grid-column:1/-1}
+.panel h3{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--blue);margin-bottom:4px}
+.panel .explain{font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4}
+
+/* === POWER BARS === */
+.pol-row{margin-bottom:10px}
+.pol-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.pol-name{font-size:12px;font-weight:600}
+.pol-stats{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.pol-bar-bg{height:28px;background:#e5e5e5;border-radius:6px;position:relative;overflow:visible}
+.pol-bar-fill{height:100%;border-radius:6px;transition:width 0.4s cubic-bezier(0.4,0,0.2,1);position:relative}
+.pol-bar-fill.keeper{background:linear-gradient(90deg,#12753a,#22c55e)}
+.pol-bar-fill.strategic{background:linear-gradient(90deg,#a36800,#eab308)}
+.pol-bar-fill.frontloader{background:linear-gradient(90deg,#1565c0,#42a5f5)}
+.pol-bar-fill.populist{background:linear-gradient(90deg,#b91c1c,#ef4444)}
+.pol-bar-fill.adaptive{background:linear-gradient(90deg,#6d28d9,#a78bfa)}
+/* Snap election threshold line */
+.snap-line{position:absolute;left:30%;top:-2px;bottom:-2px;width:2px;background:var(--snap-red);border-radius:1px;z-index:2;opacity:0.7}
+.snap-line::after{content:"";position:absolute;top:-6px;left:-3px;width:8px;height:8px;background:var(--snap-red);border-radius:50%}
+.snap-label{position:absolute;left:30%;top:-16px;font-size:8px;color:var(--snap-red);transform:translateX(-50%);white-space:nowrap;font-weight:600;letter-spacing:0.5px}
+/* Promise micro-bar inside power bar */
+.promise-micro{position:absolute;bottom:2px;right:4px;display:flex;gap:2px;align-items:center}
+.promise-dot{width:6px;height:6px;border-radius:50%;border:1px solid rgba(0,0,0,0.15)}
+.promise-dot.ok{background:var(--green)}
+.promise-dot.wip{background:var(--orange)}
+.promise-dot.fail{background:var(--red)}
+.promise-dot.pending{background:var(--muted)}
+/* Snap flash */
+.pol-row.snapped .pol-bar-bg{animation:snapFlash 1s ease}
+@keyframes snapFlash{0%{box-shadow:0 0 0 0 rgba(212,32,32,0.5)}50%{box-shadow:0 0 20px 4px rgba(212,32,32,0.25)}100%{box-shadow:none}}
+
+/* === SATISFACTION === */
+.sat-ring{width:120px;height:120px;margin:0 auto}
+.sat-value{font-size:32px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums}
+.sat-label{text-align:center;font-size:11px;color:var(--muted)}
+
+/* === WITHDRAWAL COUNTER === */
+.wd-big{font-size:44px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;transition:color 0.3s}
+.wd-big.low{color:var(--green)}.wd-big.mid{color:var(--orange)}.wd-big.high{color:var(--red)}
+.wd-sub{text-align:center;font-size:11px;color:var(--muted)}
+
+/* === CITIZEN GRID === */
+.citizen-grid{display:flex;flex-wrap:wrap;gap:2px}
+.cd{width:5px;height:5px;border-radius:50%;transition:background 0.3s}
+.cd.a{background:var(--green)}.cd.w{background:var(--red)}.cd.ap{background:#e5e5e5}
+
+/* === CANVAS CHARTS === */
+canvas{width:100%;height:180px}
+
+/* === EVENT LOG === */
+.event-log{max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.evt{padding:6px 10px;margin-bottom:4px;border-radius:6px;font-size:12px;border-left:3px solid var(--blue);background:rgba(9,105,218,0.04)}
+.evt.warn{border-color:var(--orange);background:var(--orange-bg)}.evt.bad{border-color:var(--red);background:var(--red-bg)}
+.evt.good{border-color:var(--green);background:var(--green-bg)}
+.evt .tick-badge{font-size:10px;color:var(--muted);margin-right:6px;font-variant-numeric:tabular-nums}
+.evt.snap{border-color:var(--snap-red);background:rgba(212,32,32,0.08);font-weight:600}
+
+/* === FINDINGS === */
+.findings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+.finding-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:12px;line-height:1.5}
+.finding-card .num{font-size:20px;font-weight:700;color:var(--blue);margin-right:6px}
+.finding-card.highlight{border-color:var(--green)}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <h1>Degressive <span class="accent">Democracy</span></h1>
+    <div class="subtitle">
+      <span data-lang="de">Agenten-Simulation: Was passiert wenn Buerger ihre Stimme entziehen koennen?</span>
+      <span data-lang="en">Agent Simulation: What happens when citizens can withdraw their vote?</span>
+    </div>
+  </div>
+  <div class="lang-toggle">
+    <button id="btnDE" class="active" onclick="setLang('de')">DE</button>
+    <button id="btnEN" onclick="setLang('en')">EN</button>
+  </div>
+</div>
+
+<!-- INTRO -->
+<div class="intro">
+  <div data-lang="de">
+    <h3>So funktioniert es</h3>
+    <p>In heutigen Demokratien waehlen Buerger alle 4 Jahre — und haben danach keinen Einfluss. <strong>Degressives Stimmrecht</strong> aendert das:</p>
+    <p><strong>Jeder Buerger kann seine Stimme einmal pro Legislaturperiode unwiderruflich entziehen.</strong> Entzogene Stimmen kommen nicht zurueck. Das erzwingt kontinuierliche Verantwortung.</p>
+    <div class="mechanic-chips">
+      <span class="chip key">Einmal pro Periode</span>
+      <span class="chip key">Unwiderruflich</span>
+      <span class="chip">Macht sinkt mit Stimmen</span>
+      <span class="chip">Weniger Macht = weniger Umsetzungskraft</span>
+      <span class="chip" style="border-color:var(--snap-red);color:var(--snap-red)">Neuwahl bei &lt;30% Reststimmen</span>
+    </div>
+  </div>
+  <div data-lang="en">
+    <h3>How it works</h3>
+    <p>In today's democracies, citizens vote every 4 years — and have no influence after that. <strong>Degressive voting</strong> changes this:</p>
+    <p><strong>Each citizen can withdraw their vote once per legislative term, irreversibly.</strong> Withdrawn votes never come back. This enforces continuous accountability.</p>
+    <div class="mechanic-chips">
+      <span class="chip key">Once per term</span>
+      <span class="chip key">Irreversible</span>
+      <span class="chip">Power drops with votes</span>
+      <span class="chip">Less power = less ability to deliver</span>
+      <span class="chip" style="border-color:var(--snap-red);color:var(--snap-red)">Snap election at &lt;30% remaining</span>
+    </div>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <select id="scenario">
+    <option value="deutschland" data-de="🇩🇪 Deutschland (5 Parteien)" data-en="🇩🇪 Germany (5 parties)">🇩🇪 Deutschland (5 Parteien)</option>
+    <option value="niedrige_transparenz" data-de="🔍 Niedrige Transparenz" data-en="🔍 Low Transparency">🔍 Niedrige Transparenz</option>
+    <option value="hohe_transparenz" data-de="💡 Hohe Transparenz" data-en="💡 High Transparency">💡 Hohe Transparenz</option>
+    <option value="alle_populisten" data-de="😈 Alle Populisten" data-en="😈 All Populists">😈 Alle Populisten</option>
+    <option value="alle_keeper" data-de="✅ Alle Promise Keeper" data-en="✅ All Promise Keepers">✅ Alle Promise Keeper</option>
+  </select>
+  <button class="btn btn-play" id="playBtn" onclick="togglePlay()">▶ Play</button>
+  <button class="btn" onclick="stepForward()">⏭ +1</button>
+  <button class="btn" onclick="resetSim()">↺ Reset</button>
+  <div class="speed-control">
+    <span data-lang="de">Tempo:</span><span data-lang="en">Speed:</span>
+    <input type="range" id="speedSlider" min="50" max="800" value="250">
+  </div>
+</div>
+
+<!-- TIMELINE -->
+<div class="timeline" id="timeline">
+  <div class="timeline-progress" id="timelineProgress" style="width:0%"></div>
+  <div class="timeline-marker" style="left:25%"><span data-lang="de">1. Jahr</span><span data-lang="en">Year 1</span></div>
+  <div class="timeline-marker" style="left:50%"><span data-lang="de">Halbzeit</span><span data-lang="en">Midterm</span></div>
+  <div class="timeline-marker" style="left:75%"><span data-lang="de">3. Jahr</span><span data-lang="en">Year 3</span></div>
+  <div class="timeline-tick" id="tickDisplay">0 / 48</div>
+  <div class="timeline-label" id="tickLabel"><span data-lang="de">Monat</span><span data-lang="en">Month</span></div>
+</div>
+
+<!-- MAIN GRID -->
+<div class="grid">
+
+  <!-- LEFT: Satisfaction + Withdrawals -->
+  <div class="panel">
+    <div style="display:flex;gap:20px;align-items:center;margin-bottom:12px">
+      <div style="flex:1;text-align:center">
+        <h3><span data-lang="de">Zufriedenheit</span><span data-lang="en">Satisfaction</span></h3>
+        <div class="explain">
+          <span data-lang="de">Durchschnitt aller Buerger. Sinkt bei gebrochenen Versprechen.</span>
+          <span data-lang="en">Average across all citizens. Drops when promises are broken.</span>
+        </div>
+        <div class="sat-value" id="satValue" style="color:var(--green)">1.00</div>
+      </div>
+      <div style="flex:1;text-align:center">
+        <h3><span data-lang="de">Entzuege</span><span data-lang="en">Withdrawals</span></h3>
+        <div class="explain">
+          <span data-lang="de">Einmal entzogen = fuer immer weg.</span>
+          <span data-lang="en">Once withdrawn = gone forever.</span>
+        </div>
+        <div class="wd-big low" id="wdCounter">0</div>
+        <div class="wd-sub"><span data-lang="de">von</span><span data-lang="en">of</span> <span id="wdTotal">300</span> | <span data-lang="de">diesen Monat:</span><span data-lang="en">this month:</span> <span id="wdThisTick">0</span></div>
+      </div>
+    </div>
+    <h3><span data-lang="de">Buerger</span><span data-lang="en">Citizens</span></h3>
+    <div class="explain">
+      <span style="color:var(--green)">●</span> <span data-lang="de">aktiv</span><span data-lang="en">active</span>&nbsp;
+      <span style="color:var(--red)">●</span> <span data-lang="de">entzogen</span><span data-lang="en">withdrawn</span>&nbsp;
+      <span style="color:#21262d">●</span> <span data-lang="de">apathisch (waehlt nicht)</span><span data-lang="en">apathetic (doesn't vote)</span>
+    </div>
+    <div class="citizen-grid" id="citizenGrid"></div>
+  </div>
+
+  <!-- RIGHT: Event Log -->
+  <div class="panel">
+    <h3><span data-lang="de">Ereignisse</span><span data-lang="en">Events</span></h3>
+    <div class="explain">
+      <span data-lang="de">Was passiert und warum — in Echtzeit.</span>
+      <span data-lang="en">What's happening and why — in real time.</span>
+    </div>
+    <div class="event-log" id="eventLog"></div>
+  </div>
+</div>
+
+<!-- POWER BARS (full width) -->
+<div class="panel full" style="margin-bottom:14px">
+  <h3><span data-lang="de">Macht pro Politiker</span><span data-lang="en">Power per Politician</span></h3>
+  <div class="explain">
+    <span data-lang="de">Macht = verbleibende Stimmen / Anfangsstimmen. Die <span style="color:var(--snap-red)">rote Markierung bei 30%</span> ist die Neuwahl-Schwelle: faellt ein Politiker darunter, wird er durch einen neuen Kandidaten ersetzt.</span>
+    <span data-lang="en">Power = remaining votes / initial votes. The <span style="color:var(--snap-red)">red marker at 30%</span> is the snap election threshold: if a politician drops below, they are replaced by a new candidate.</span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;margin-bottom:10px">
+    <div style="border-left:4px solid var(--green);padding:6px 10px;background:var(--green-bg);border-radius:0 6px 6px 0">
+      <div style="font-weight:700;font-size:12px;color:var(--green)" data-lang="de">Promise Keeper</div>
+      <div style="font-weight:700;font-size:12px;color:var(--green)" data-lang="en">Promise Keeper</div>
+      <div style="font-size:11px;color:var(--muted)">
+        <span data-lang="de">Verteilt Aufwand gleichmaessig auf alle Versprechen. Strategie: alles halten, egal wie schwer.</span>
+        <span data-lang="en">Distributes effort equally across all promises. Strategy: keep everything, no matter how hard.</span>
+      </div>
+    </div>
+    <div style="border-left:4px solid var(--orange);padding:6px 10px;background:var(--orange-bg);border-radius:0 6px 6px 0">
+      <div style="font-weight:700;font-size:12px;color:var(--orange)" data-lang="de">Strategisches Minimum</div>
+      <div style="font-weight:700;font-size:12px;color:var(--orange)" data-lang="en">Strategic Minimum</div>
+      <div style="font-size:11px;color:var(--muted)">
+        <span data-lang="de">Investiert nur in sichtbare Versprechen (Visibility &gt; 50%). Unsichtbare werden ignoriert — hofft dass es niemand merkt.</span>
+        <span data-lang="en">Only invests in visible promises (Visibility &gt; 50%). Invisible ones are ignored — hopes nobody notices.</span>
+      </div>
+    </div>
+    <div style="border-left:4px solid var(--blue);padding:6px 10px;background:rgba(26,115,232,0.06);border-radius:0 6px 6px 0">
+      <div style="font-weight:700;font-size:12px;color:var(--blue)" data-lang="de">Frontloader</div>
+      <div style="font-weight:700;font-size:12px;color:var(--blue)" data-lang="en">Frontloader</div>
+      <div style="font-size:11px;color:var(--muted)">
+        <span data-lang="de">Erfuellt die einfachsten Versprechen zuerst. Schnelle sichtbare Erfolge, schwierige Themen bleiben liegen.</span>
+        <span data-lang="en">Fulfills easiest promises first. Quick visible wins, difficult topics are left behind.</span>
+      </div>
+    </div>
+    <div style="border-left:4px solid var(--red);padding:6px 10px;background:var(--red-bg);border-radius:0 6px 6px 0">
+      <div style="font-weight:700;font-size:12px;color:var(--red)" data-lang="de">Populist</div>
+      <div style="font-weight:700;font-size:12px;color:var(--red)" data-lang="en">Populist</div>
+      <div style="font-size:11px;color:var(--muted)">
+        <span data-lang="de">Macht doppelt so viele Versprechen wie andere, verteilt Aufwand aber zu duenn. Ergebnis: fast nichts wird erfuellt.</span>
+        <span data-lang="en">Makes twice as many promises as others, but spreads effort too thin. Result: almost nothing gets done.</span>
+      </div>
+    </div>
+    <div style="border-left:4px solid var(--purple);padding:6px 10px;background:rgba(124,58,237,0.06);border-radius:0 6px 6px 0">
+      <div style="font-weight:700;font-size:12px;color:var(--purple)" data-lang="de">Adaptiv</div>
+      <div style="font-weight:700;font-size:12px;color:var(--purple)" data-lang="en">Adaptive</div>
+      <div style="font-size:11px;color:var(--muted)">
+        <span data-lang="de">Wechselt Strategie je nach Druck: bei wenig Entzuegen wie Promise Keeper, bei steigenden Entzuegen wie Strategic Min.</span>
+        <span data-lang="en">Switches strategy based on pressure: acts like Promise Keeper when safe, like Strategic Min when withdrawals rise.</span>
+      </div>
+    </div>
+  </div>
+  <div class="explain" style="font-size:10px">
+    <span data-lang="de">Kleine Punkte im Balken = Versprechen: <span style="color:var(--green)">●</span>erfuellt <span style="color:var(--orange)">●</span>in Arbeit <span style="color:var(--red)">●</span>gebrochen <span style="color:var(--muted)">●</span>offen</span>
+    <span data-lang="en">Dots inside bar = promises: <span style="color:var(--green)">●</span>fulfilled <span style="color:var(--orange)">●</span>in progress <span style="color:var(--red)">●</span>broken <span style="color:var(--muted)">●</span>pending</span>
+  </div>
+  <div id="powerBars"></div>
+</div>
+
+<!-- CHARTS -->
+<div class="grid">
+  <div class="panel">
+    <h3><span data-lang="de">Machtverlauf</span><span data-lang="en">Power Over Time</span></h3>
+    <div class="explain">
+      <span data-lang="de">Jede Linie = ein Politiker. Faellt sie unter 30%, wird er ersetzt.</span>
+      <span data-lang="en">Each line = one politician. If it drops below 30%, they get replaced.</span>
+    </div>
+    <canvas id="powerChart"></canvas>
+  </div>
+  <div class="panel">
+    <h3><span data-lang="de">Entzuege pro Monat</span><span data-lang="en">Withdrawals per Month</span></h3>
+    <div class="explain">
+      <span data-lang="de">Hohe Balken = Entzugs-Welle. Oft ausgeloest durch gebrochene Versprechen.</span>
+      <span data-lang="en">Tall bars = withdrawal wave. Usually triggered by broken promises.</span>
+    </div>
+    <canvas id="wdChart"></canvas>
+  </div>
+</div>
+
+<!-- FINDINGS -->
+<div class="panel full" style="margin-top:14px;border-left:3px solid var(--green)">
+  <h3><span data-lang="de">Zentrale Forschungsergebnisse</span><span data-lang="en">Key Research Findings</span></h3>
+  <div class="explain">
+    <span data-lang="de">Aus 249 Tests, Sensitivity Analysis und 18 Szenarien — statistisch robust.</span>
+    <span data-lang="en">From 249 tests, sensitivity analysis and 18 scenarios — statistically robust.</span>
+  </div>
+  <div class="findings-grid">
+    <div class="finding-card highlight" data-lang="de"><span class="num">1</span><strong>Promise-Keeping ist Nash-Gleichgewicht.</strong> Es lohnt sich nicht, Versprechen zu brechen — solange Buerger entziehen koennen.</div>
+    <div class="finding-card highlight" data-lang="en"><span class="num">1</span><strong>Promise-keeping is a Nash Equilibrium.</strong> Breaking promises doesn't pay — as long as citizens can withdraw.</div>
+    <div class="finding-card" data-lang="de"><span class="num">2</span><strong>Transparenz ist wichtiger als der Mechanismus.</strong> Wahl-O-Mat-Tracking halbiert die Entzuege und verdoppelt die Zufriedenheit.</div>
+    <div class="finding-card" data-lang="en"><span class="num">2</span><strong>Transparency matters more than the mechanism.</strong> Promise tracking halves withdrawals and doubles satisfaction.</div>
+    <div class="finding-card" data-lang="de"><span class="num">3</span><strong>Populisten werden immer eliminiert</strong> — in 100% aller getesteten Konfigurationen. Der Mechanismus ist ein Anti-Populismus-Werkzeug.</div>
+    <div class="finding-card" data-lang="en"><span class="num">3</span><strong>Populists are always eliminated</strong> — in 100% of tested configurations. The mechanism is an anti-populism tool.</div>
+    <div class="finding-card" data-lang="de"><span class="num">4</span><strong>Auf kommunaler Ebene reicht die blosse Existenz.</strong> 0 Entzuege noetig — wie in der Schweiz: dormant institution.</div>
+    <div class="finding-card" data-lang="en"><span class="num">4</span><strong>At municipal level, mere existence suffices.</strong> 0 withdrawals needed — like in Switzerland: dormant institution.</div>
+    <div class="finding-card" data-lang="de"><span class="num">5</span><strong>Externe Krisen sind der blinde Fleck.</strong> Blame Shifting schuetzt Politiker — Buerger bestrafen nicht fuer Unkontrollierbares.</div>
+    <div class="finding-card" data-lang="en"><span class="num">5</span><strong>External crises are the blind spot.</strong> Blame shifting protects politicians — citizens don't punish for uncontrollable events.</div>
+  </div>
+</div>
+
+<div style="text-align:center;padding:20px;font-size:11px;color:var(--muted)">
+  Degressive Democracy Research Project — 249 Tests, 18 Scenarios, 17 Modules
+</div>
+
+</div><!-- /container -->
+
+<script>
+const SCENARIOS = __SCENARIOS_JSON__;
+const SNAP_THRESHOLD = 0.30;
+const COLORS = {
+  promise_keeper:'#16873d',strategic_minimum:'#c47a00',frontloader:'#1a73e8',
+  populist:'#d42020',adaptive:'#7c3aed'
+};
+const BAR_CLS = {
+  promise_keeper:'keeper',strategic_minimum:'strategic',frontloader:'frontloader',
+  populist:'populist',adaptive:'adaptive'
+};
+const STRAT_LABELS = {
+  de:{promise_keeper:'Versprechen-Halter',strategic_minimum:'Strategisches Minimum',frontloader:'Frontloader',populist:'Populist',adaptive:'Adaptiv'},
+  en:{promise_keeper:'Promise Keeper',strategic_minimum:'Strategic Minimum',frontloader:'Frontloader',populist:'Populist',adaptive:'Adaptive'}
+};
+
+let lang='de', data, currentTick=0, playing=false, interval=null;
+let powerHist={}, wdHist=[], eventEntries=[];
+
+function setLang(l){
+  lang=l;
+  document.body.className=l==='en'?'en':'';
+  document.getElementById('btnDE').className=l==='de'?'active':'';
+  document.getElementById('btnEN').className=l==='en'?'active':'';
+  document.querySelectorAll('#scenario option').forEach(o=>{o.textContent=o.getAttribute('data-'+l)||o.textContent});
+  // Re-render power bar labels
+  if(data) renderPowerBars();
+}
+function t(de,en){return lang==='en'?en:de}
+
+function init(){
+  data=SCENARIOS[document.getElementById('scenario').value];
+  currentTick=0;powerHist={};wdHist=[];eventEntries=[];
+
+  // Citizen grid
+  const g=document.getElementById('citizenGrid');g.innerHTML='';
+  for(let i=0;i<data.n_citizens;i++){const d=document.createElement('div');d.className='cd a';d.id='c'+i;g.appendChild(d)}
+  document.getElementById('wdTotal').textContent=data.n_citizens;
+
+  renderPowerBars();
+  data.politicians.forEach(p=>{powerHist[p.id]=[]});
+  updateUI();
+  document.getElementById('eventLog').innerHTML='<div class="evt good"><span data-lang="de">'+t('Druecke Play um die Legislaturperiode zu starten.','Press Play to start the legislative term.')+'</span></div>';
+}
+
+function renderPowerBars(){
+  const el=document.getElementById('powerBars');el.innerHTML='';
+  data.politicians.forEach(p=>{
+    const cls=BAR_CLS[p.behavior]||'keeper';
+    const label=STRAT_LABELS[lang][p.behavior]||p.behavior;
+    const td=currentTick>0?data.ticks[currentTick-1]:null;
+    const power=td?td.power[p.id]:1;
+    const votes=td?td.votes[p.id]:p.initial_votes;
+    const prom=td?td.promises[p.id]:null;
+
+    let promDots='';
+    if(prom){
+      for(let i=0;i<prom.total;i++){
+        let c='pending';
+        if(i<prom.fulfilled)c='ok';else if(i<prom.fulfilled+prom.broken)c='fail';else if(i<prom.fulfilled+prom.broken+(prom.total-prom.fulfilled-prom.broken))c=prom.avg_progress>0.3?'wip':'pending';
+        promDots+=`<div class="promise-dot ${c}"></div>`;
+      }
+    }
+
+    el.innerHTML+=`
+      <div class="pol-row" id="pr_${p.id}">
+        <div class="pol-header">
+          <span class="pol-name" style="color:${COLORS[p.behavior]}">${label}</span>
+          <span class="pol-stats" id="ps_${p.id}">Power ${power.toFixed(2)} | ${votes}/${p.initial_votes} ${t('Stimmen','votes')}</span>
+        </div>
+        <div class="pol-bar-bg">
+          <div class="snap-label">${t('Neuwahl','Snap Election')}</div>
+          <div class="snap-line"></div>
+          <div class="pol-bar-fill ${cls}" id="pb_${p.id}" style="width:${power*100}%">
+            <div class="promise-micro" id="pm_${p.id}">${promDots}</div>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+function stepForward(){
+  if(currentTick>=48){stopPlay();return}
+  currentTick++;
+  const td=data.ticks[currentTick-1];
+
+  // Power bars + promise dots
+  data.politicians.forEach(p=>{
+    const power=td.power[p.id];
+    const votes=td.votes[p.id];
+    document.getElementById('pb_'+p.id).style.width=(power*100)+'%';
+    document.getElementById('ps_'+p.id).textContent=`Power ${power.toFixed(2)} | ${votes}/${p.initial_votes} ${t('Stimmen','votes')}`;
+    powerHist[p.id].push(power);
+
+    // Promise dots
+    const prom=td.promises[p.id];
+    if(prom){
+      const pm=document.getElementById('pm_'+p.id);
+      let dots='';
+      for(let i=0;i<prom.total;i++){
+        let c='pending';
+        if(i<prom.fulfilled)c='ok';else if(i<prom.fulfilled+prom.broken)c='fail';else c=prom.avg_progress>0.3?'wip':'pending';
+        dots+=`<div class="promise-dot ${c}"></div>`;
+      }
+      pm.innerHTML=dots;
+    }
+  });
+
+  // Snap events — update label + color when politician is replaced
+  if(data.snap_events){
+    data.snap_events.forEach(se=>{
+      if(se.tick===currentTick){
+        const row=document.getElementById('pr_'+se.pol_id);
+        if(row)row.classList.add('snapped');
+        // Update the name label to show replacement
+        const nameEl=row?.querySelector('.pol-name');
+        if(nameEl){
+          const newLabel=STRAT_LABELS[lang][se.new_behavior]||se.new_behavior;
+          const oldLabel=STRAT_LABELS[lang][se.old_behavior]||se.old_behavior;
+          nameEl.innerHTML=`<s style="opacity:0.4">${oldLabel}</s> → ${newLabel}`;
+          nameEl.style.color=COLORS[se.new_behavior]||nameEl.style.color;
+        }
+        // Update bar color
+        const bar=document.getElementById('pb_'+se.pol_id);
+        if(bar){
+          bar.className='pol-bar-fill '+(BAR_CLS[se.new_behavior]||'keeper');
+        }
+        addEvent('snap',t(
+          `NEUWAHL: ${STRAT_LABELS.de[se.old_behavior]} faellt unter 30% (${Math.round(se.remaining_pct*100)}%) → wird ersetzt durch ${STRAT_LABELS.de[se.new_behavior]}. Buerger bekommen neue Chance.`,
+          `SNAP ELECTION: ${STRAT_LABELS.en[se.old_behavior]} drops below 30% (${Math.round(se.remaining_pct*100)}%) → replaced by ${STRAT_LABELS.en[se.new_behavior]}. Citizens get a fresh start.`
+        ));
+      }
+    });
+  }
+
+  // Withdrawal counter
+  const wdEl=document.getElementById('wdCounter');
+  wdEl.textContent=td.cumulative_wd;
+  wdEl.className='wd-big '+(td.cumulative_wd<data.n_citizens*0.1?'low':td.cumulative_wd<data.n_citizens*0.3?'mid':'high');
+  document.getElementById('wdThisTick').textContent=td.withdrawals;
+
+  // Citizen dots
+  for(let i=0;i<data.n_citizens;i++){
+    const dot=document.getElementById('c'+i);
+    if(dot&&i<td.cumulative_wd)dot.className='cd w';
+  }
+
+  // Satisfaction
+  const satEl=document.getElementById('satValue');
+  satEl.textContent=td.satisfaction.toFixed(2);
+  satEl.style.color=td.satisfaction>0.7?'var(--green)':td.satisfaction>0.4?'var(--orange)':'var(--red)';
+
+  wdHist.push(td.withdrawals);
+  updateUI();
+  generateEvents(td);
+  drawCharts();
+}
+
+function updateUI(){
+  document.getElementById('tickDisplay').textContent=currentTick+' / 48';
+  const pct=(currentTick/48)*100;
+  document.getElementById('timelineProgress').style.width=pct+'%';
+
+  // Add snap markers to timeline
+  if(data.snap_events){
+    data.snap_events.forEach(se=>{
+      if(!document.getElementById('tsnap_'+se.tick)){
+        const m=document.createElement('div');
+        m.className='timeline-snap';m.id='tsnap_'+se.tick;
+        m.style.left=(se.tick/48*100)+'%';
+        document.getElementById('timeline').appendChild(m);
+      }
+    });
+  }
+}
+
+function generateEvents(td){
+  // Populist check
+  data.politicians.forEach(p=>{
+    if(p.behavior==='populist'&&td.power[p.id]<0.3&&currentTick>3){
+      if(!eventEntries.find(e=>e.includes('Populist'))){
+        addEvent('bad',t(
+          `Populist kollabiert (Power ${td.power[p.id].toFixed(2)}): Hat ${td.promises[p.id]?.total||'?'} Versprechen gemacht aber kann sie nicht umsetzen — zu duenn verteilt.`,
+          `Populist collapsing (Power ${td.power[p.id].toFixed(2)}): Made ${td.promises[p.id]?.total||'?'} promises but can't deliver — spread too thin.`
+        ));
+      }
+    }
+  });
+
+  // Withdrawal wave
+  if(td.withdrawals>10){
+    addEvent('warn',t(
+      `Entzugs-Welle: ${td.withdrawals} Buerger entziehen gleichzeitig. Zufriedenheit bei ${td.satisfaction.toFixed(2)}.`,
+      `Withdrawal wave: ${td.withdrawals} citizens withdraw simultaneously. Satisfaction at ${td.satisfaction.toFixed(2)}.`
+    ));
+  }
+
+  // Satisfaction crisis
+  if(td.satisfaction<0.4&&!eventEntries.find(e=>e.includes('Vertrauenskrise')||e.includes('Trust crisis'))){
+    addEvent('bad',t(
+      `Vertrauenskrise: Zufriedenheit unter 40%. Buerger verlieren Glauben an das System.`,
+      `Trust crisis: Satisfaction below 40%. Citizens losing faith in the system.`
+    ));
+  }
+
+  // Deterrence
+  const allHigh=data.politicians.every(p=>td.power[p.id]>0.9);
+  if(allHigh&&currentTick===24){
+    addEvent('good',t(
+      `Halbzeit: Alle Politiker bei voller Macht. Der Mechanismus wirkt als Deterrence — wie in der Schweiz.`,
+      `Midterm: All politicians at full power. Mechanism works as deterrence — like in Switzerland.`
+    ));
+  }
+
+  // Milestones
+  if(currentTick===12)addEvent('',t('Ende 1. Jahr.','End of Year 1.'));
+  if(currentTick===24)addEvent('',t('Halbzeit der Legislaturperiode.','Midterm of legislative period.'));
+  if(currentTick===36)addEvent('',t('Letztes Jahr beginnt. Strategische Buerger werden jetzt aktiv.','Final year begins. Strategic citizens activate now.'));
+
+  // End — full summary
+  if(currentTick===48){
+    // Build per-politician result summary
+    let polSummaryDe='', polSummaryEn='';
+    const winners=[], losers=[];
+    data.politicians.forEach(p=>{
+      const pw=td.power[p.id];
+      const label_de=STRAT_LABELS.de[p.behavior]||p.behavior;
+      const label_en=STRAT_LABELS.en[p.behavior]||p.behavior;
+      if(pw>=0.9) winners.push({de:label_de,en:label_en,pw});
+      else losers.push({de:label_de,en:label_en,pw});
+    });
+
+    const snaps=data.snap_events?data.snap_events.length:0;
+    const wdPct=Math.round(td.cumulative_wd/data.n_citizens*100);
+
+    addEvent('good', t(
+      '━━━ ERGEBNIS DER LEGISLATURPERIODE ━━━',
+      '━━━ LEGISLATIVE TERM RESULT ━━━'
+    ));
+
+    // Satisfaction verdict
+    if(td.satisfaction>=0.8){
+      addEvent('good',t(
+        `Zufriedenheit: ${td.satisfaction.toFixed(2)} — Das System funktioniert. Buerger sind zufrieden, Versprechen wurden weitgehend gehalten.`,
+        `Satisfaction: ${td.satisfaction.toFixed(2)} — The system works. Citizens are satisfied, promises were largely kept.`
+      ));
+    } else if(td.satisfaction>=0.5){
+      addEvent('warn',t(
+        `Zufriedenheit: ${td.satisfaction.toFixed(2)} — Gemischtes Ergebnis. Einige Versprechen gebrochen, aber das System hat reagiert.`,
+        `Satisfaction: ${td.satisfaction.toFixed(2)} — Mixed result. Some promises broken, but the system responded.`
+      ));
+    } else {
+      addEvent('bad',t(
+        `Zufriedenheit: ${td.satisfaction.toFixed(2)} — Systemversagen. Buerger sind unzufrieden, Vertrauen ist zerstoert.`,
+        `Satisfaction: ${td.satisfaction.toFixed(2)} — System failure. Citizens are dissatisfied, trust is destroyed.`
+      ));
+    }
+
+    // Withdrawal verdict
+    if(wdPct===0){
+      addEvent('good',t(
+        'Stimmenentzuege: 0 — Perfekte Deterrence. Der Mechanismus wurde nicht gebraucht, weil die blosse Existenz diszipliniert hat.',
+        'Vote withdrawals: 0 — Perfect deterrence. The mechanism wasn\'t needed because its mere existence disciplined politicians.'
+      ));
+    } else if(wdPct<15){
+      addEvent('',t(
+        `Stimmenentzuege: ${td.cumulative_wd} (${wdPct}%) — Moderate Nutzung. Das System hat gezielt bestraft ohne zu destabilisieren.`,
+        `Vote withdrawals: ${td.cumulative_wd} (${wdPct}%) — Moderate use. The system punished precisely without destabilizing.`
+      ));
+    } else {
+      addEvent('warn',t(
+        `Stimmenentzuege: ${td.cumulative_wd} (${wdPct}%) — Hohe Nutzung. Viele Buerger waren unzufrieden genug um ihre einzige Stimme zu opfern.`,
+        `Vote withdrawals: ${td.cumulative_wd} (${wdPct}%) — Heavy use. Many citizens were dissatisfied enough to sacrifice their one-time vote.`
+      ));
+    }
+
+    // Winners & Losers
+    if(winners.length>0){
+      const wNames=winners.map(w=>lang==='en'?w.en:w.de).join(', ');
+      addEvent('good',t(
+        `Gewinner: ${wNames} — haben volle Macht behalten.`,
+        `Winners: ${wNames} — retained full power.`
+      ));
+    }
+    if(losers.length>0){
+      const lList=losers.map(l=>`${lang==='en'?l.en:l.de} (${(l.pw*100).toFixed(0)}%)`).join(', ');
+      addEvent('bad',t(
+        `Verlierer: ${lList} — wurden durch Stimmenentzug bestraft.`,
+        `Losers: ${lList} — punished by vote withdrawals.`
+      ));
+    }
+
+    // Snap elections
+    if(snaps>0){
+      addEvent('snap',t(
+        `${snaps} Neuwahl(en) ausgeloest — Politiker unter 30% wurden durch neue Kandidaten ersetzt.`,
+        `${snaps} snap election(s) triggered — politicians below 30% were replaced by new candidates.`
+      ));
+    }
+
+    // Key takeaway
+    const allHighPower=data.politicians.every(p=>td.power[p.id]>0.9);
+    if(allHighPower && td.cumulative_wd===0){
+      addEvent('good',t(
+        'Fazit: Dormant Institution — der Mechanismus wirkte durch seine blosse Existenz. Wie das Schweizer Abberufungsrecht: nie genutzt, immer wirksam.',
+        'Takeaway: Dormant Institution — the mechanism worked through its mere existence. Like Switzerland\'s recall right: never used, always effective.'
+      ));
+    } else if(losers.some(l=>l.de.includes('Populist')||l.en.includes('Populist'))){
+      addEvent('good',t(
+        'Fazit: Anti-Populismus-Mechanismus bestaetigt. Populisten koennen unter degressivem Stimmrecht nicht ueberleben — zu viele leere Versprechen.',
+        'Takeaway: Anti-populism mechanism confirmed. Populists cannot survive under degressive voting — too many empty promises.'
+      ));
+    } else {
+      addEvent('',t(
+        'Fazit: Das System differenziert zwischen ehrlichen und unehrlichen Politikern. Transparenz ist der Schluessel.',
+        'Takeaway: The system differentiates between honest and dishonest politicians. Transparency is key.'
+      ));
+    }
+  }
+}
+
+function addEvent(cls,text){
+  eventEntries.push(text);
+  const log=document.getElementById('eventLog');
+  const badge=`<span class="tick-badge">M${currentTick}</span>`;
+  log.innerHTML=`<div class="evt ${cls}">${badge}${text}</div>`+log.innerHTML;
+}
+
+function drawCharts(){
+  // Power chart
+  const pc=document.getElementById('powerChart');
+  const ctx=pc.getContext('2d');
+  pc.width=pc.offsetWidth;pc.height=180;
+  ctx.clearRect(0,0,pc.width,pc.height);
+  const xS=pc.width/48,yH=pc.height-25;
+
+  // Snap threshold line
+  const snapY=yH-(SNAP_THRESHOLD*yH)+10;
+  ctx.setLineDash([4,4]);ctx.strokeStyle='#d42020';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(0,snapY);ctx.lineTo(pc.width,snapY);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#d42020';ctx.font='9px sans-serif';
+  ctx.fillText(t('Neuwahl-Schwelle 30%','Snap election 30%'),pc.width-120,snapY-4);
+
+  // Danger zone
+  ctx.fillStyle='rgba(212,32,32,0.06)';
+  ctx.fillRect(0,snapY,pc.width,pc.height-snapY);
+
+  data.politicians.forEach(p=>{
+    const h=powerHist[p.id];if(h.length<2)return;
+    ctx.beginPath();ctx.strokeStyle=COLORS[p.behavior]||'#555555';ctx.lineWidth=2.5;
+    h.forEach((v,i)=>{const x=i*xS,y=yH-(v*yH)+10;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});
+    ctx.stroke();
+  });
+
+  // Withdrawal chart
+  const wc=document.getElementById('wdChart');
+  const wctx=wc.getContext('2d');
+  wc.width=wc.offsetWidth;wc.height=180;
+  wctx.clearRect(0,0,wc.width,wc.height);
+  if(wdHist.length>0){
+    const mx=Math.max(...wdHist,1),bw=wc.width/48;
+    wdHist.forEach((v,i)=>{
+      const h=(v/mx)*(wc.height-25);
+      wctx.fillStyle=v>10?'#d42020':v>3?'#c47a00':'#16873d';
+      wctx.fillRect(i*bw,wc.height-h-15,bw-1,h);
+    });
+  }
+}
+
+// Controls
+function togglePlay(){playing?stopPlay():startPlay()}
+function startPlay(){
+  if(currentTick>=48)resetSim();
+  playing=true;
+  const btn=document.getElementById('playBtn');btn.innerHTML='⏸ Pause';btn.classList.add('playing');
+  interval=setInterval(stepForward,850-parseInt(document.getElementById('speedSlider').value));
+}
+function stopPlay(){
+  playing=false;
+  const btn=document.getElementById('playBtn');btn.innerHTML='▶ Play';btn.classList.remove('playing');
+  if(interval)clearInterval(interval);
+}
+function resetSim(){
+  stopPlay();
+  // Remove snap markers
+  document.querySelectorAll('.timeline-snap').forEach(e=>e.remove());
+  init();
+}
+document.getElementById('scenario').addEventListener('change',resetSim);
+document.getElementById('speedSlider').addEventListener('input',()=>{if(playing){stopPlay();startPlay()}});
+
+init();
+</script>
+</body>
+</html>
