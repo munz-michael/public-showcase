@@ -1,6 +1,6 @@
 # Public Showcase
 
-Selected research projects.
+Selected research projects. All projects include an [AI transparency note](#transparency) describing the collaboration between human author and AI assistant.
 
 ## Projects
 
@@ -18,3 +18,28 @@ Multi-agent debate engine that pits Google Gemini against Anthropic Claude to pr
 - [Paper (PDF)](./lean-multi-agent-debate/paper/debate_paper.pdf)
 - [Sycophancy Benchmark](./lean-multi-agent-debate/benchmarks/sycophancy_compare.py)
 - [Research Findings](./lean-multi-agent-debate/BACKLOG.md#research-findings-2026-03-13)
+
+### [Degressive Democracy](./degressive-democracy/)
+Agent-based simulation of irreversible vote withdrawal as democratic accountability mechanism. 249 tests, formal Nash proof, Prospect Theory satisfaction model, Germany-specific scenarios, interactive dashboard. Shows that promise-keeping is Nash equilibrium, populists are always eliminated, and at municipal level the mechanism works as dormant institution.
+
+- [Source Code](./degressive-democracy/degressive_democracy/)
+- [Paper](./degressive-democracy/paper/degressive_democracy_irreversible_vote_withdrawal.md)
+- [Findings Report](./degressive-democracy/FINDINGS.md)
+- [Interactive Dashboard](./degressive-democracy/output/dashboard.html)
+- [Nash Proof](./degressive-democracy/concepts/nash_proof.md)
+
+### [Living Knowledge Space](./living-knowledge-space/)
+Physics-biology hybrid for safe knowledge retrieval. Gravitational search with immune-system quality signals. Healthy knowledge attracts queries; pathological knowledge loses gravitational pull. MRR +9.1% (p=0.019), Threat Exposure Rate -36.7% (p<0.001).
+
+- [Paper](./living-knowledge-space/paper/lks_paper.md)
+- [Benchmark Suite](./living-knowledge-space/benchmark/)
+- [Figures](./living-knowledge-space/figures/)
+
+---
+
+<a id="transparency"></a>
+## A Note on Process and Transparency
+
+All projects in this showcase were developed in close collaboration with AI coding tools — specifically Claude Code (Anthropic) as the primary development environment. For each project, the human author designed the architecture, formulated research questions, made strategic decisions, and interpreted results. The AI assistant implemented code, ran experiments, and drafted text.
+
+Each project README contains a specific transparency note describing the division of work for that project. We believe honest disclosure of AI involvement in research is more valuable than pretending it didn't happen.

@@ -1,6 +1,8 @@
 # Backlog — Lean Multi-Provider Debate Framework
 
-## Tier-3 Features (not yet scheduled)
+> **Status: ABGESCHLOSSEN (2026-03-19)** — v1.9, 6 Sycophancy-Experimente, Two-Dimensional Sycophancy Model dokumentiert. Keine weitere Entwicklung geplant.
+
+## Tier-3 Features (nicht umgesetzt, bewusst verworfen)
 
 ### Debate Tree
 Run multiple independent debate branches on sub-questions (from `--decompose`) and synthesize them into a final answer tree. Enables deeper exploration of complex multi-faceted problems.

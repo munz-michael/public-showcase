@@ -36,7 +36,7 @@ import anthropic
 from google import genai
 from google.genai import types as genai_types
 
-sys.path.insert(0, "/workspaces/Claude Code/config")
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "config"))
 try:
     from sanitization import sanitize_input
 except ImportError:

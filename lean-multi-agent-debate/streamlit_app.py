@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).parent))
-sys.path.insert(0, "/workspaces/Claude Code/config")
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "config"))
 
 # Package imports (debate/ sub-package takes precedence when installed)
 
