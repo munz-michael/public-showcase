@@ -33,6 +33,6 @@ Agent-based simulation of irreversible vote withdrawal as democratic accountabil
 <a id="transparency"></a>
 ## A Note on Process and Transparency
 
-All projects in this showcase were developed in close collaboration with AI coding tools — specifically Claude Code (Anthropic) as the primary development environment. For each project, the human author designed the architecture, formulated research questions, made strategic decisions, and interpreted results. The AI assistant implemented code, ran experiments, and drafted text.
+All projects in this showcase were developed in close collaboration with AI coding tools. For each project, the human author designed the architecture, formulated research questions, made strategic decisions, and interpreted results. The AI assistant implemented code, ran experiments, and drafted text.
 
 Each project README contains a specific transparency note describing the division of work for that project. We believe honest disclosure of AI involvement in research is more valuable than pretending it didn't happen.

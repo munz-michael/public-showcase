@@ -129,6 +129,10 @@ Core findings verified across 4 satisfaction models — results are model-indepe
 - Laver, M. & Sergenti, E. (2011). *Party Competition*. Princeton UP.
 - Epstein, J.M. & Axtell, R.L. (1996). *Growing Artificial Societies*. MIT Press.
 
+## A Note on Process and Transparency
+
+This project was developed with AI coding assistance. Architecture, research questions, and interpretation of results are human contributions. See the [repository-level transparency note](../README.md#transparency) and the [paper](paper/degressive_democracy_irreversible_vote_withdrawal.md#a-note-on-process-and-transparency) for details.
+
 ## License
 
 Apache 2.0 — see [LICENSE](LICENSE)
