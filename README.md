@@ -28,13 +28,6 @@ Agent-based simulation of irreversible vote withdrawal as democratic accountabil
 - [Interactive Dashboard](./degressive-democracy/output/dashboard.html)
 - [Nash Proof](./degressive-democracy/concepts/nash_proof.md)
 
-### [Living Knowledge Space](./living-knowledge-space/)
-Physics-biology hybrid for safe knowledge retrieval. Gravitational search with immune-system quality signals. Healthy knowledge attracts queries; pathological knowledge loses gravitational pull. MRR +9.1% (p=0.019), Threat Exposure Rate -36.7% (p<0.001).
-
-- [Paper](./living-knowledge-space/paper/lks_paper.md)
-- [Benchmark Suite](./living-knowledge-space/benchmark/)
-- [Figures](./living-knowledge-space/figures/)
-
 ---
 
 <a id="transparency"></a>
