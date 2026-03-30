@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALA — How AI Agents Learn</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0f1b33; color: #e0e0e0; font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; overflow-y: auto; }
+
+/* ── RESPONSIVE SCALING ── */
+@media (max-width: 800px) {
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.4rem; }
+  .narration { font-size: 0.9rem; padding: 12px 16px; width: 92%; bottom: 70px; }
+  canvas { max-width: 95vw; height: auto !important; }
+  .stat-val { font-size: 1.8rem; }
+  .stat-row { gap: 20px; }
+  #matrix-grid { font-size: 0.6rem; }
+  #controls button { padding: 8px 16px; font-size: 0.85rem; }
+}
+
+/* ── CONTAINER ── */
+#app { width: 100vw; height: 100vh; position: relative; }
+.scene { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.8s ease; pointer-events: none; padding: 20px; }
+.scene.active { opacity: 1; pointer-events: auto; }
+
+/* ── TYPOGRAPHY ── */
+h1 { font-size: 3.2rem; font-weight: 700; color: #fff; text-align: center; margin-bottom: 0.5rem; }
+h2 { font-size: 2rem; font-weight: 600; color: #5dade2; text-align: center; margin-bottom: 1rem; }
+.subtitle { font-size: 1.2rem; color: #85c1e9; text-align: center; margin-bottom: 2rem; }
+.narration { position: absolute; bottom: 200px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 900px; background: rgba(15,27,51,0.92); border: 1px solid #2e86c1; border-radius: 12px; padding: 18px 28px; font-size: 1.1rem; line-height: 1.7; color: #d5e8f5; text-align: center; opacity: 0; transition: opacity 0.6s ease 0.4s; }
+.scene.active .narration { opacity: 1; }
+
+/* ── CANVAS ── */
+canvas { border-radius: 8px; }
+
+/* ── CONTROLS ── */
+#controls { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 100; }
+#controls button { background: #1b2a4a; border: 1px solid #2e86c1; color: #5dade2; padding: 10px 24px; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.2s; }
+#controls button:hover { background: #2e86c1; color: #fff; }
+#controls button.active { background: #2e86c1; color: #fff; }
+#progress { position: fixed; top: 0; left: 0; height: 3px; background: #2e86c1; transition: width 0.5s ease; z-index: 100; }
+#scene-counter { position: fixed; top: 12px; right: 20px; color: #5dade2; font-size: 0.9rem; z-index: 100; }
+
+/* ── SCENE SPECIFICS ── */
+.stat-row { display: flex; gap: 50px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
+.stat { text-align: center; }
+.stat-val { font-size: 2.6rem; font-weight: 700; color: #fff; }
+.stat-label { font-size: 0.9rem; color: #85c1e9; margin-top: 4px; }
+
+/* ── GRID (Scene 3) ── */
+#matrix-grid { display: grid; grid-template-columns: 140px repeat(9, 1fr); gap: 2px; width: 90%; max-width: 860px; font-size: 0.72rem; }
+#matrix-grid .cell { padding: 6px 4px; text-align: center; border-radius: 4px; transition: transform 0.15s, box-shadow 0.15s; }
+#matrix-grid .cell:hover { transform: scale(1.15); box-shadow: 0 0 12px rgba(93,173,226,0.5); z-index: 2; position: relative; }
+#matrix-grid .hdr { background: #1b2a4a; color: #5dade2; font-weight: 700; font-size: 0.7rem; }
+#matrix-grid .row-hdr { background: #1b2a4a; color: #85c1e9; font-weight: 600; text-align: left; padding-left: 8px; }
+.g2 { background: #1a5632; color: #6bdf8e; } .g1 { background: #1a4a2e; color: #5bc97a; }
+.y0 { background: #4a4a1a; color: #c9c95b; } .r1 { background: #4a2a1a; color: #c97a5b; }
+.r2 { background: #5a1a1a; color: #df6b6b; }
+
+/* ── ABLATION TOGGLES (Scene 7) ── */
+.toggle-row { display: flex; align-items: center; gap: 16px; margin: 8px 0; }
+.toggle-btn { width: 52px; height: 28px; border-radius: 14px; border: 2px solid #2e86c1; background: #27ae60; cursor: pointer; position: relative; transition: background 0.3s; }
+.toggle-btn.off { background: #e74c3c; }
+.toggle-btn::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left 0.3s; }
+.toggle-btn.off::after { left: 26px; }
+.toggle-label { color: #d5e8f5; font-size: 1rem; min-width: 180px; }
+.toggle-delta { color: #e74c3c; font-weight: 700; font-size: 1rem; min-width: 80px; }
+
+/* ── ANIMATIONS ── */
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.animate-in { animation: fadeUp 0.6s ease forwards; }
+.pulse { animation: pulse 2.5s ease infinite; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="progress" style="width:0%"></div>
+  <div id="scene-counter"></div>
+
+  <!-- SCENE 0: Title -->
+  <div class="scene active" id="s0">
+    <h1 class="pulse">How AI Agents Learn</h1>
+    <div class="subtitle">A Practitioner's Taxonomy and Empirical Comparison</div>
+    <div style="color:#5dade2; font-size:1.1rem;">Michael Munz &middot; 2026</div>
+    <div class="narration">Every agent community advocates its own learning approach. We built the first systematic comparison: 20 paradigms, 7 strategies, 14 tasks, 181 tests. No LLM calls. Fully reproducible.</div>
+  </div>
+
+  <!-- SCENE 1: The Problem -->
+  <div class="scene" id="s1">
+    <h2>The Problem: Fragmented Landscape</h2>
+    <canvas id="c1" width="700" height="340" role="img" aria-label="Three disconnected silos representing RAG, Fine-Tuning, and File-Based learning approaches"></canvas>
+    <div class="narration">RAG, fine-tuning, file-based memory, reinforcement learning -- each community advocates its approach in isolation. No shared benchmark. No head-to-head comparison. Practitioners are left guessing.</div>
+  </div>
+
+  <!-- SCENE 2: Taxonomy -->
+  <div class="scene" id="s2">
+    <h2>The Taxonomy: 20 Paradigms, 5 Categories</h2>
+    <canvas id="c2" width="750" height="360" role="img" aria-label="Taxonomy tree: 20 paradigms in 5 categories — Weight-Based (5), Context-Based (5), Hybrid (4), Structural (4), Meta (2)"></canvas>
+    <div class="narration">We map the entire landscape: from weight-based fine-tuning to context-based RAG, hybrid combinations, structural architectures, and emerging meta-approaches. 20 paradigms in a single tree.</div>
+  </div>
+
+  <!-- SCENE 3: Decision Framework -->
+  <div class="scene" id="s3">
+    <h2>The Decision Framework</h2>
+    <div id="matrix-grid"></div>
+    <div class="narration">Nine approaches scored across seven trade-off axes. Hover any cell for details. Green (++) = clear advantage, red (--) = clear disadvantage. CLL dominates 5 of 7 axes -- but fails at scaling.</div>
+  </div>
+
+  <!-- SCENE 4: Benchmark -->
+  <div class="scene" id="s4">
+    <h2>The Benchmark</h2>
+    <div class="stat-row">
+      <div class="stat"><div class="stat-val" id="cnt-strat">0</div><div class="stat-label">Strategies</div></div>
+      <div class="stat"><div class="stat-val" id="cnt-tasks">0</div><div class="stat-label">Tasks</div></div>
+      <div class="stat"><div class="stat-val" id="cnt-tests">0</div><div class="stat-label">Tests</div></div>
+      <div class="stat"><div class="stat-val" id="cnt-loc">0</div><div class="stat-label">Lines of Code</div></div>
+    </div>
+    <canvas id="c4" width="500" height="220" style="margin-top:20px;" role="img" aria-label="Predict-Score-Learn cycle diagram showing the LearningStrategy interface"></canvas>
+    <div class="narration">Seven strategies share one interface: predict(), get scored, then learn(). Fourteen tasks test classification, generative output, and real-world data. All deterministic -- no LLM calls, fully reproducible.</div>
+  </div>
+
+  <!-- SCENE 5: Results -->
+  <div class="scene" id="s5">
+    <h2>The Results: Hybrids Lead</h2>
+    <canvas id="c5" width="700" height="320" role="img" aria-label="Animated bar chart showing final scores: CLL+RAG 0.926, Debate 0.925, CLL 0.861, RAG 0.866, Reflexion 0.823, SimLLM 0.771, ICL 0.710"></canvas>
+    <div class="narration">Scores averaged across all 14 tasks, including coding-agent tasks where CLL scores only 0.200. On 8 core tasks alone, CLL leads with 0.953. But the full picture matters: CLL+RAG (0.926) and Debate (0.925) are the most robust across all task types. ICL (0.710) is never sufficient alone.</div>
+  </div>
+
+  <!-- SCENE 6: Drift Detection -->
+  <div class="scene" id="s6">
+    <h2>Drift Detection: The Key Moment</h2>
+    <canvas id="c6" width="700" height="300" role="img" aria-label="Drift detection visualization: CLL score drops at step 100 phase shift, recovers to 1.000 with drift detection, stays at 0.850 without"></canvas>
+    <div class="narration">At step 100, the environment shifts. Without drift detection, CLL clings to old rules and drops to 0.850. With drift detection, it fires, clears stale rules, relearns in 8 steps, and recovers to 1.000. Zero cost on stable tasks.</div>
+  </div>
+
+  <!-- SCENE 7: Ablation -->
+  <div class="scene" id="s7">
+    <h2>The Ablation: Three Orthogonal Improvements</h2>
+    <div id="ablation-area" style="margin-top:10px;"></div>
+    <div class="narration">Three CLL v2 improvements. Each addresses a different failure mode. Toggle them off to see the impact. None degrades performance on tasks that don't need them. Orthogonal by design.</div>
+  </div>
+
+  <!-- SCENE 8: Debate — The Robust Allrounder -->
+  <div class="scene" id="s8">
+    <h2>Debate: The Robust Allrounder</h2>
+    <canvas id="c8debate" width="700" height="380" role="img" aria-label="Debate strategy architecture: CLL Agent and RAG Agent feed into Trust Model producing Consensus. Rank chart shows Debate never below rank 4 across 10 tasks"></canvas>
+    <div class="narration">Debate combines CLL and RAG agents with a trust-weighted consensus model. It never drops below rank #4 on any task, placing #2-3 on most. Two agents propose, a trust model arbitrates. Robust by architecture -- no single point of failure.</div>
+  </div>
+
+  <!-- SCENE 9: Statistical Proof -->
+  <div class="scene" id="s9">
+    <h2>Not Just Better -- Provably Better</h2>
+    <canvas id="c9" width="700" height="320" role="img" aria-label="Statistical proof: McNemar chi-squared values with significance stars and bootstrap confidence intervals"></canvas>
+    <div class="narration">McNemar's chi-squared test confirms: CLL vs RAG on sequence learning (chi2 = 36.98, p &lt; 0.0001). Bootstrap 95% CIs never overlap on key tasks. This is not noise -- it is a statistically significant structural advantage.</div>
+  </div>
+
+  <!-- SCENE 10: CTA -->
+  <div class="scene" id="s10">
+    <h1 class="pulse" style="margin-bottom:24px; font-size:2.6rem;">The Practitioner's Playbook</h1>
+    <div style="display:flex; gap:30px; flex-wrap:wrap; justify-content:center; margin-top:10px;">
+      <div style="text-align:center; padding:24px 28px; border:1px solid #2e86c1; border-radius:12px; width:200px;">
+        <div style="font-size:2.2rem; margin-bottom:10px; color:#27ae60;">1</div>
+        <div style="font-weight:700; font-size:1.1rem; color:#fff;">Start with CLL</div>
+        <div style="font-size:0.85rem; color:#85c1e9; margin-top:8px;">File-based. Git-tracked. Zero infrastructure.</div>
+      </div>
+      <div style="text-align:center; padding:24px 28px; border:1px solid #2e86c1; border-radius:12px; width:200px;">
+        <div style="font-size:2.2rem; margin-bottom:10px; color:#f39c12;">2</div>
+        <div style="font-weight:700; font-size:1.1rem; color:#fff;">Add Drift Detection</div>
+        <div style="font-size:0.85rem; color:#85c1e9; margin-top:8px;">Rolling window. Fires only when needed. Zero cost on stable tasks.</div>
+      </div>
+      <div style="text-align:center; padding:24px 28px; border:1px solid #2e86c1; border-radius:12px; width:200px;">
+        <div style="font-size:2.2rem; margin-bottom:10px; color:#2e86c1;">3</div>
+        <div style="font-weight:700; font-size:1.1rem; color:#fff;">Scale with RAG</div>
+        <div style="font-size:0.85rem; color:#85c1e9; margin-top:8px;">Beyond 50 rules, add retrieval. CLL for core, RAG for depth.</div>
+      </div>
+    </div>
+    <div style="margin-top:30px; display:flex; gap:30px; color:#85c1e9; font-size:0.95rem;">
+      <span>181 tests</span><span style="color:#2e86c1;">|</span>
+      <span>14 tasks</span><span style="color:#2e86c1;">|</span>
+      <span>7 strategies</span><span style="color:#2e86c1;">|</span>
+      <span>Open source</span>
+    </div>
+    <div class="narration">The choice is not about the "best" approach -- it is about matching the right strategy to the right constraints. CLL's advantages are structural: auditability, privacy, composability. They outlast any single model generation.</div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div id="controls">
+    <button onclick="prevScene()">&#8592; Back</button>
+    <button id="btn-play" onclick="toggleAutoPlay()">&#9654; Auto</button>
+    <button onclick="nextScene()">Next &#8594;</button>
+  </div>
+</div>
+
+<script>
+// ── SCENE MANAGEMENT ──
+let current = 0;
+const total = 11;
+let autoPlay = null;
+const SCENE_DURATION = 5000;
+
+function showScene(n) {
+  document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+  document.getElementById('s' + n).classList.add('active');
+  current = n;
+  document.getElementById('progress').style.width = ((n / (total - 1)) * 100) + '%';
+  document.getElementById('scene-counter').textContent = (n + 1) + ' / ' + total;
+  if (n === 1) drawSilos();
+  if (n === 2) drawTaxonomy();
+  if (n === 3) buildMatrix();
+  if (n === 4) animateCounters();
+  if (n === 4) drawCycle();
+  if (n === 5) drawResults();
+  if (n === 6) drawDrift();
+  if (n === 7) buildAblation();
+  if (n === 8) drawDebate();
+  if (n === 9) drawStats();
+}
+
+function nextScene() { if (current < total - 1) showScene(current + 1); }
+function prevScene() { if (current > 0) showScene(current - 1); }
+function toggleAutoPlay() {
+  var btn = document.getElementById('btn-play');
+  if (autoPlay) { clearInterval(autoPlay); autoPlay = null; btn.textContent = '\u25b6 Auto'; btn.classList.remove('active'); }
+  else { autoPlay = setInterval(function() { if (current < total - 1) nextScene(); else toggleAutoPlay(); }, SCENE_DURATION); btn.textContent = '\u23f8 Pause'; btn.classList.add('active'); }
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextScene(); }
+  if (e.key === 'ArrowLeft') prevScene();
+});
+
+// ── SCENE 1: Fragmented Silos ──
+function drawSilos() {
+  var c = document.getElementById('c1'), ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, 700, 340);
+  var silos = [
+    { x: 130, y: 150, r: 80, label: 'RAG', color: '#e74c3c', sub: 'Vector DBs\nEmbeddings\nRetrieval' },
+    { x: 350, y: 150, r: 80, label: 'Fine-Tuning', color: '#f39c12', sub: 'LoRA\nRLHF\nWeight Updates' },
+    { x: 570, y: 150, r: 80, label: 'File-Based', color: '#8e44ad', sub: 'CLAUDE.md\nRule Files\nGit-Tracked' }
+  ];
+  // Dashed gaps between silos
+  ctx.setLineDash([6, 8]); ctx.strokeStyle = '#3d3d3d'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(220, 150); ctx.lineTo(260, 150); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(440, 150); ctx.lineTo(480, 150); ctx.stroke();
+  // X marks
+  ctx.setLineDash([]); ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 3;
+  [240, 460].forEach(function(x) {
+    ctx.beginPath(); ctx.moveTo(x - 8, 142); ctx.lineTo(x + 8, 158); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x + 8, 142); ctx.lineTo(x - 8, 158); ctx.stroke();
+  });
+  silos.forEach(function(s) {
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = s.color; ctx.globalAlpha = 0.15; ctx.fill(); ctx.globalAlpha = 1;
+    ctx.strokeStyle = s.color; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(s.label, s.x, s.y - 20);
+    ctx.font = '12px sans-serif'; ctx.fillStyle = '#85c1e9';
+    s.sub.split('\n').forEach(function(line, i) { ctx.fillText(line, s.x, s.y + 8 + i * 16); });
+  });
+  ctx.fillStyle = '#e74c3c'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('No shared benchmark. No head-to-head comparison.', 350, 280);
+}
+
+// ── SCENE 2: Taxonomy Tree ──
+function drawTaxonomy() {
+  var c = document.getElementById('c2'), ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, 750, 360);
+  var cats = [
+    { label: 'A. Weight-Based', color: '#e74c3c', items: ['SFT', 'RLHF', 'Async RL', 'RAFT', 'Agent FT'], x: 75 },
+    { label: 'B. Context-Based', color: '#2e86c1', items: ['RAG', 'ICL', 'Context Eng.', 'CLL', 'Reflexion'], x: 225 },
+    { label: 'C. Hybrid', color: '#27ae60', items: ['RAG+FT', 'CLL+RAG', 'Voyager', 'ExpeL'], x: 375 },
+    { label: 'D. Structural', color: '#f39c12', items: ['MemGPT', 'Hierarchical', 'Multi-Agent', 'Self-Evolving'], x: 525 },
+    { label: 'E. Meta', color: '#8e44ad', items: ['Policy Mem.', 'Error Mitig.'], x: 675 }
+  ];
+  // Root
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('Agent Learning', 375, 24);
+  ctx.fillStyle = '#5dade2'; ctx.font = '12px sans-serif';
+  ctx.fillText('20 Paradigms', 375, 42);
+  cats.forEach(function(cat) {
+    // Line from root to top of category box
+    ctx.beginPath(); ctx.moveTo(375, 50); ctx.lineTo(cat.x, 70); ctx.strokeStyle = cat.color; ctx.globalAlpha = 0.5; ctx.lineWidth = 1.5; ctx.stroke(); ctx.globalAlpha = 1;
+    // Category box
+    ctx.fillStyle = cat.color; ctx.globalAlpha = 0.2;
+    var bw = 120, bh = 24;
+    ctx.fillRect(cat.x - bw / 2, 70, bw, bh); ctx.globalAlpha = 1;
+    ctx.strokeStyle = cat.color; ctx.lineWidth = 1; ctx.strokeRect(cat.x - bw / 2, 70, bw, bh);
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(cat.label, cat.x, 86);
+    // Items
+    cat.items.forEach(function(item, i) {
+      var iy = 110 + i * 28;
+      ctx.beginPath(); ctx.moveTo(cat.x, 94); ctx.lineTo(cat.x, iy - 4); ctx.strokeStyle = cat.color; ctx.globalAlpha = 0.3; ctx.lineWidth = 1; ctx.stroke(); ctx.globalAlpha = 1;
+      ctx.fillStyle = '#1b2a4a'; ctx.fillRect(cat.x - 52, iy - 10, 104, 22); ctx.strokeStyle = cat.color; ctx.lineWidth = 0.5; ctx.strokeRect(cat.x - 52, iy - 10, 104, 22);
+      ctx.fillStyle = '#d5e8f5'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(item, cat.x, iy + 4);
+    });
+    // Count badge
+    var lastY = 110 + (cat.items.length - 1) * 28 + 20;
+    ctx.fillStyle = cat.color; ctx.globalAlpha = 0.8; ctx.font = 'bold 11px sans-serif';
+    ctx.fillText(cat.items.length + ' paradigms', cat.x, lastY);
+    ctx.globalAlpha = 1;
+  });
+}
+
+// ── SCENE 3: Decision Matrix ──
+var matrixBuilt = false;
+function buildMatrix() {
+  if (matrixBuilt) return; matrixBuilt = true;
+  var grid = document.getElementById('matrix-grid');
+  var axes = ['Latency', 'Cost', 'Data Eff.', 'Alignment', 'Privacy', 'Auditability', 'Scaling'];
+  var strats = ['CLL', 'RAG', 'FT', 'ICL', 'AsyncRL', 'RAFT', 'Reflexion', 'MemGPT', 'Voyager'];
+  var data = [
+    ['++','+',' --','++','--','--','+','+','+'],
+    ['++','+','--','++','--','--','++','+','++'],
+    ['++','-','--','++','--','-','+','+','+'],
+    ['++','+','-','++','-','+/-','++','+','++'],
+    ['++','+/-','-','++','-','-','++','+','+'],
+    ['++','+','--','+','--','--','++','+','++'],
+    ['--','++','++','--','+','++','-','+','+']
+  ];
+  function cls(v) { v = v.trim(); if (v === '++') return 'g2'; if (v === '+') return 'g1'; if (v === '+/-') return 'y0'; if (v === '-') return 'r1'; return 'r2'; }
+  // Header row
+  grid.innerHTML = '<div class="cell hdr"></div>';
+  strats.forEach(function(s) { grid.innerHTML += '<div class="cell hdr">' + s + '</div>'; });
+  axes.forEach(function(ax, ri) {
+    grid.innerHTML += '<div class="cell row-hdr">' + ax + '</div>';
+    data[ri].forEach(function(v) { grid.innerHTML += '<div class="cell ' + cls(v) + '" title="' + ax + ': ' + v.trim() + '">' + v.trim() + '</div>'; });
+  });
+}
+
+// ── SCENE 4: Animated Counters + Cycle ──
+function animateCounters() {
+  var targets = { 'cnt-strat': 7, 'cnt-tasks': 14, 'cnt-tests': 181, 'cnt-loc': 4999 };
+  Object.keys(targets).forEach(function(id) {
+    var el = document.getElementById(id), target = targets[id], cur = 0;
+    var step = Math.max(1, Math.floor(target / 35));
+    var iv = setInterval(function() { cur = Math.min(cur + step, target); el.textContent = target === 4999 ? cur.toLocaleString() + '+' : cur; if (cur >= target) clearInterval(iv); }, 30);
+  });
+}
+
+function drawCycle() {
+  var c = document.getElementById('c4'), ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, 500, 220);
+  var nodes = [
+    { x: 80, y: 110, label: 'predict()' },
+    { x: 250, y: 110, label: 'score' },
+    { x: 420, y: 110, label: 'learn()' }
+  ];
+  // Arrows
+  ctx.strokeStyle = '#2e86c1'; ctx.lineWidth = 2; ctx.fillStyle = '#2e86c1';
+  [[0,1],[1,2]].forEach(function(pair) {
+    var a = nodes[pair[0]], b = nodes[pair[1]];
+    ctx.beginPath(); ctx.moveTo(a.x + 50, a.y); ctx.lineTo(b.x - 50, b.y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(b.x - 50, b.y); ctx.lineTo(b.x - 60, b.y - 6); ctx.lineTo(b.x - 60, b.y + 6); ctx.fill();
+  });
+  // Return arrow
+  ctx.beginPath(); ctx.moveTo(420, 140); ctx.quadraticCurveTo(250, 200, 80, 140); ctx.strokeStyle = '#27ae60'; ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#27ae60'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('feedback loop', 250, 190);
+  // Boxes
+  nodes.forEach(function(n) {
+    ctx.fillStyle = '#1b2a4a'; ctx.fillRect(n.x - 46, n.y - 22, 92, 44);
+    ctx.strokeStyle = '#5dade2'; ctx.lineWidth = 1.5; ctx.strokeRect(n.x - 46, n.y - 22, 92, 44);
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 14px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(n.label, n.x, n.y);
+  });
+  ctx.fillStyle = '#85c1e9'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('LearningStrategy ABC', 250, 30);
+}
+
+// ── SCENE 5: Results Bar Chart ──
+function drawResults() {
+  var c = document.getElementById('c5'), ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, 700, 320);
+  var strategies = [
+    { name: 'CLL+RAG', score: 0.926, wins: '≈ #1', color: '#2e86c1' },
+    { name: 'Debate', score: 0.925, wins: '≈ #1', color: '#00897b' },
+    { name: 'RAG', score: 0.866, wins: '#3', color: '#e67e22' },
+    { name: 'CLL', score: 0.861, wins: '#4', color: '#27ae60' },
+    { name: 'Reflexion', score: 0.823, wins: '#5', color: '#f39c12' },
+    { name: 'SimLLM', score: 0.771, wins: '#6', color: '#795548' },
+    { name: 'ICL', score: 0.710, wins: '#7', color: '#e74c3c' }
+  ];
+  var pad = 60, barW = 60, gap = 24, maxH = 200;
+  var startX = (700 - (strategies.length * barW + (strategies.length - 1) * gap)) / 2;
+  // Axis
+  ctx.strokeStyle = '#2e4a6e'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad - 10, 260); ctx.lineTo(700 - pad + 10, 260); ctx.stroke();
+  // Bars with animation target
+  var frame = 0, maxFrames = 40;
+  function animateBars() {
+    ctx.clearRect(0, 0, 700, 320);
+    ctx.strokeStyle = '#2e4a6e'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad - 10, 260); ctx.lineTo(700 - pad + 10, 260); ctx.stroke();
+    // Grid lines
+    [0.5, 0.75, 1.0].forEach(function(v) {
+      var y = 260 - v * maxH;
+      ctx.beginPath(); ctx.moveTo(pad - 10, y); ctx.lineTo(700 - pad + 10, y); ctx.strokeStyle = '#1b2a4a'; ctx.stroke();
+      ctx.fillStyle = '#3d5a80'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right'; ctx.fillText(v.toFixed(2), pad - 14, y + 4);
+    });
+    var progress = Math.min(frame / maxFrames, 1);
+    strategies.forEach(function(s, i) {
+      var x = startX + i * (barW + gap);
+      var h = s.score * maxH * progress;
+      ctx.fillStyle = s.color; ctx.globalAlpha = 0.85;
+      ctx.fillRect(x, 260 - h, barW, h); ctx.globalAlpha = 1;
+      ctx.strokeStyle = s.color; ctx.lineWidth = 1; ctx.strokeRect(x, 260 - h, barW, h);
+      // Label
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(s.name, x + barW / 2, 278);
+      // Score
+      if (progress > 0.8) {
+        ctx.fillStyle = s.color; ctx.font = 'bold 16px sans-serif';
+        ctx.fillText((s.score * progress).toFixed(3), x + barW / 2, 260 - h - 22);
+        ctx.fillStyle = '#85c1e9'; ctx.font = '11px sans-serif';
+        ctx.fillText(s.wins + ' wins', x + barW / 2, 260 - h - 8);
+      }
+    });
+    frame++;
+    if (frame <= maxFrames) requestAnimationFrame(animateBars);
+  }
+  frame = 0; animateBars();
+}
+
+// ── SCENE 6: Drift Detection ──
+function drawDrift() {
+  var c = document.getElementById('c6'), ctx = c.getContext('2d');
+  var w = 700, h = 300, pad = 55;
+  var frame = 0, maxFrames = 60;
+  function animateDrift() {
+    ctx.clearRect(0, 0, w, h);
+    // Axes
+    ctx.strokeStyle = '#2e4a6e'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad, 20); ctx.lineTo(pad, h - pad); ctx.lineTo(w - 20, h - pad); ctx.stroke();
+    ctx.fillStyle = '#85c1e9'; ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText('Steps (0-200)', w / 2, h - 10);
+    ctx.save(); ctx.translate(14, h / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('Score', 0, 0); ctx.restore();
+    // Phase shift line
+    var shiftX = pad + (w - pad - 20) * 0.5;
+    ctx.strokeStyle = '#e74c3c'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(shiftX, 20); ctx.lineTo(shiftX, h - pad); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#e74c3c'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Phase Shift (step 100)', shiftX, 16);
+    var progress = Math.min(frame / maxFrames, 1);
+    var totalPts = 40;
+    var drawPts = Math.floor(totalPts * progress);
+    var yRange = h - pad - 30;
+    var xStep = (w - pad - 20) / (totalPts - 1);
+    // Without drift (red dashed)
+    function scoreNoDrift(i) {
+      if (i < 20) return 0.95 + Math.random() * 0.05;
+      if (i < 22) return 0.85 - (i - 20) * 0.04;
+      return 0.83 + Math.random() * 0.03;
+    }
+    // With drift (green solid)
+    function scoreWithDrift(i) {
+      if (i < 20) return 0.97 + Math.random() * 0.03;
+      if (i === 20) return 0.75;
+      if (i === 21) return 0.80;
+      if (i === 22) return 0.88;
+      if (i === 23) return 0.94;
+      return 0.97 + Math.random() * 0.03;
+    }
+    // Seed random for consistency
+    var seedA = [0.97,0.99,0.96,0.98,1.0,0.97,0.99,0.98,1.0,0.97,0.98,0.99,1.0,0.97,0.99,0.98,1.0,0.99,0.97,0.98, 0.75,0.80,0.88,0.94,0.97,0.99,1.0,0.98,0.99,1.0,0.97,0.99,0.98,1.0,0.97,0.99,1.0,0.98,0.99,1.0];
+    var seedB = [0.96,0.98,0.95,0.97,0.99,0.96,0.98,0.97,0.99,0.96,0.97,0.98,0.99,0.96,0.98,0.97,0.99,0.98,0.96,0.97, 0.84,0.82,0.83,0.85,0.84,0.83,0.85,0.84,0.83,0.85,0.84,0.83,0.85,0.84,0.83,0.85,0.84,0.83,0.85,0.85];
+    // Draw no-drift line (red)
+    ctx.beginPath();
+    for (var i = 0; i <= drawPts && i < totalPts; i++) {
+      var x = pad + i * xStep, y = 25 + (1 - seedB[i]) * yRange;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]); ctx.stroke(); ctx.setLineDash([]);
+    // Draw with-drift line (green)
+    ctx.beginPath();
+    for (var i = 0; i <= drawPts && i < totalPts; i++) {
+      var x = pad + i * xStep, y = 25 + (1 - seedA[i]) * yRange;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = '#27ae60'; ctx.lineWidth = 3; ctx.stroke();
+    // Drift detector fires marker
+    if (drawPts >= 20) {
+      var dx = pad + 20 * xStep, dy = 25 + (1 - 0.75) * yRange;
+      ctx.beginPath(); ctx.arc(dx, dy, 8, 0, Math.PI * 2);
+      ctx.strokeStyle = '#f39c12'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#f39c12'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText('DriftDetector fires!', dx - 30, dy + 24);
+    }
+    // Legend (top-right, stacked to avoid overlap)
+    if (progress > 0.6) {
+      var ly = h - pad - 50;
+      ctx.fillStyle = '#0f1b33'; ctx.fillRect(w - 260, ly - 14, 240, 38);
+      ctx.fillStyle = '#27ae60'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText('— With drift detection: 1.000', w - 255, ly);
+      ctx.fillStyle = '#e74c3c'; ctx.font = 'bold 12px sans-serif';
+      ctx.fillText('--- Without drift detection: 0.850', w - 255, ly + 18);
+    }
+    frame++;
+    if (frame <= maxFrames) requestAnimationFrame(animateDrift);
+  }
+  frame = 0; animateDrift();
+}
+
+// ── SCENE 7: Ablation Toggles ──
+var ablationBuilt = false;
+function buildAblation() {
+  if (ablationBuilt) return; ablationBuilt = true;
+  var area = document.getElementById('ablation-area');
+  var toggles = [
+    { id: 'drift', label: 'Drift Detection', delta: '-0.075 on adaptive', detail: 'Rolling accuracy window. Fires on phase shift.' },
+    { id: 'seq', label: 'Sequence Rules', delta: '-0.225 on sequence', detail: 'SEQ:prev->current temporal patterns.' },
+    { id: 'majority', label: 'Majority Vote', delta: '-0.075 on contradictory', detail: 'Frequency-based mutation beats last-value-wins.' }
+  ];
+  var html = '<div style="display:flex;gap:40px;flex-wrap:wrap;justify-content:center;">';
+  toggles.forEach(function(t) {
+    html += '<div style="background:#1b2a4a;border:1px solid #2e86c1;border-radius:12px;padding:20px 24px;width:200px;text-align:center;">';
+    html += '<div class="toggle-row" style="justify-content:center;"><div class="toggle-btn" id="tog-' + t.id + '" onclick="toggleAblation(\'' + t.id + '\')"></div></div>';
+    html += '<div style="font-weight:700;color:#fff;margin:10px 0 4px;font-size:1rem;">' + t.label + '</div>';
+    html += '<div style="font-size:0.82rem;color:#85c1e9;margin-bottom:8px;">' + t.detail + '</div>';
+    html += '<div id="delta-' + t.id + '" style="color:#27ae60;font-weight:700;font-size:0.95rem;">ON: +0.000 cost</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  html += '<div style="text-align:center;margin-top:18px;"><span style="color:#5dade2;font-size:0.95rem;">CLL v2 score: </span><span id="ablation-score" style="color:#fff;font-weight:700;font-size:1.2rem;">0.953</span></div>';
+  area.innerHTML = html;
+}
+
+function toggleAblation(id) {
+  var btn = document.getElementById('tog-' + id);
+  var delta = document.getElementById('delta-' + id);
+  var isOff = btn.classList.toggle('off');
+  var deltas = { drift: { text: 'OFF: -0.075 adaptive', d: -0.015 }, seq: { text: 'OFF: -0.225 sequence', d: -0.04 }, majority: { text: 'OFF: -0.075 contradictory', d: -0.01 } };
+  if (isOff) { delta.style.color = '#e74c3c'; delta.textContent = deltas[id].text; }
+  else { delta.style.color = '#27ae60'; delta.textContent = 'ON: +0.000 cost'; }
+  // Update total score
+  var base = 0.953;
+  ['drift', 'seq', 'majority'].forEach(function(k) {
+    if (document.getElementById('tog-' + k).classList.contains('off')) base += deltas[k].d;
+  });
+  document.getElementById('ablation-score').textContent = base.toFixed(3);
+}
+
+// ── SCENE 8: Statistical Proof ──
+function drawStats() {
+  var c = document.getElementById('c9'), ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, 700, 320);
+  var comparisons = [
+    { label: 'CLL vs RAG\nadaptive', chi2: 12.50, p: 0.0004, stars: '***' },
+    { label: 'CLL vs RAG\nsequence', chi2: 36.98, p: 0.0001, stars: '***' },
+    { label: 'CLL vs ICL\nscaling', chi2: 89.76, p: 0.0001, stars: '***' },
+    { label: 'CLL vs Refl.\nnoisy', chi2: 5.26, p: 0.0218, stars: '*' },
+    { label: 'CLL vs Refl.\nsequence', chi2: 18.58, p: 0.0001, stars: '***' }
+  ];
+  var barW = 70, gap = 40, maxH = 160, pad = 80;
+  var startX = (700 - (comparisons.length * barW + (comparisons.length - 1) * gap)) / 2;
+  // Scale: max chi2 = 89.76
+  comparisons.forEach(function(cmp, i) {
+    var x = startX + i * (barW + gap);
+    var h = (cmp.chi2 / 90) * maxH;
+    // Bar
+    var color = cmp.stars === '***' ? '#27ae60' : '#f39c12';
+    ctx.fillStyle = color; ctx.globalAlpha = 0.7; ctx.fillRect(x, 240 - h, barW, h); ctx.globalAlpha = 1;
+    ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.strokeRect(x, 240 - h, barW, h);
+    // Chi2 value
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('\u03c7\u00b2=' + cmp.chi2.toFixed(1), x + barW / 2, 240 - h - 20);
+    // Stars
+    ctx.fillStyle = cmp.stars === '***' ? '#27ae60' : '#f39c12'; ctx.font = 'bold 16px sans-serif';
+    ctx.fillText(cmp.stars, x + barW / 2, 240 - h - 6);
+    // p-value
+    ctx.fillStyle = '#85c1e9'; ctx.font = '10px sans-serif';
+    ctx.fillText('p=' + (cmp.p < 0.001 ? '<0.001' : cmp.p.toFixed(4)), x + barW / 2, 256);
+    // Label
+    ctx.fillStyle = '#d5e8f5'; ctx.font = '10px sans-serif';
+    cmp.label.split('\n').forEach(function(line, li) { ctx.fillText(line, x + barW / 2, 272 + li * 14); });
+  });
+  // Axis
+  ctx.strokeStyle = '#2e4a6e'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(startX - 10, 240); ctx.lineTo(startX + comparisons.length * (barW + gap), 240); ctx.stroke();
+  // Title
+  ctx.fillStyle = '#5dade2'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText("McNemar's \u03c7\u00b2 (higher = more significant)", 350, 20);
+  // CI box
+  ctx.fillStyle = '#1b2a4a'; ctx.fillRect(500, 40, 185, 80); ctx.strokeStyle = '#2e86c1'; ctx.lineWidth = 1; ctx.strokeRect(500, 40, 185, 80);
+  ctx.fillStyle = '#5dade2'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'left'; ctx.fillText('Bootstrap 95% CI', 510, 56);
+  ctx.fillStyle = '#d5e8f5'; ctx.font = '10px sans-serif';
+  ctx.fillText('CLL seq: [0.920, 0.975]', 510, 74);
+  ctx.fillText('RAG seq: [0.670, 0.790]', 510, 90);
+  ctx.fillStyle = '#27ae60'; ctx.font = 'bold 10px sans-serif';
+  ctx.fillText('Non-overlapping: confirmed', 510, 108);
+}
+
+// ── SCENE 8: Debate — The Robust Allrounder ──
+function drawDebate() {
+  var c = document.getElementById('c8debate'), ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, 700, 380);
+
+  // Architecture visual: CLL + RAG → Trust Model → Consensus (compact, top area)
+  var boxes = [
+    { x: 120, y: 20, w: 100, h: 34, label: 'CLL Agent', color: '#1976d2' },
+    { x: 120, y: 72, w: 100, h: 34, label: 'RAG Agent', color: '#e64a19' },
+    { x: 330, y: 46, w: 110, h: 34, label: 'Trust Model', color: '#f39c12' },
+    { x: 520, y: 46, w: 100, h: 34, label: 'Consensus', color: '#00897b' }
+  ];
+
+  // Arrows
+  ctx.strokeStyle = '#5dade2'; ctx.lineWidth = 2;
+  [[220, 37, 330, 58], [220, 89, 330, 68], [440, 63, 520, 63]].forEach(function(a) {
+    ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(a[2], a[3]); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(a[2], a[3]); ctx.lineTo(a[2] - 8, a[3] - 5); ctx.lineTo(a[2] - 8, a[3] + 5); ctx.fillStyle = '#5dade2'; ctx.fill();
+  });
+
+  // Boxes
+  boxes.forEach(function(b) {
+    ctx.fillStyle = b.color; ctx.globalAlpha = 0.2;
+    ctx.fillRect(b.x, b.y, b.w, b.h); ctx.globalAlpha = 1;
+    ctx.strokeStyle = b.color; ctx.lineWidth = 1.5; ctx.strokeRect(b.x, b.y, b.w, b.h);
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(b.label, b.x + b.w / 2, b.y + b.h / 2);
+  });
+
+  // Separator + title for rank chart
+  ctx.fillStyle = '#00897b'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('Debate Rank by Task: Never below #4', 350, 132);
+
+  // Rank chart (more vertical space)
+  var tasks = ['cat', 'adpt', 'noisy', 'multi', 'seq', 'sc50', 'sc500', 'contr', 'code', 'err'];
+  var ranks = [1, 1, 2, 1, 1, 1, 2, 3, 2, 2];
+  var chartX = 60, chartY = 150, chartW = 580, chartH = 120;
+  var barW2 = chartW / tasks.length * 0.55;
+  var gap2 = chartW / tasks.length;
+
+  // Axis
+  ctx.strokeStyle = '#2e4a6e'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(chartX, chartY + chartH); ctx.lineTo(chartX + chartW, chartY + chartH); ctx.stroke();
+
+  // Rank lines
+  ctx.fillStyle = '#3d5a80'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+  [1, 2, 3, 4].forEach(function(r) {
+    var y = chartY + chartH - (5 - r) / 4 * chartH;
+    ctx.beginPath(); ctx.moveTo(chartX, y); ctx.lineTo(chartX + chartW, y); ctx.strokeStyle = '#1b2a4a'; ctx.stroke();
+    ctx.fillText('#' + r, chartX - 8, y + 4);
+  });
+
+  // Bars
+  tasks.forEach(function(t, i) {
+    var x = chartX + i * gap2 + (gap2 - barW2) / 2;
+    var rank = ranks[i];
+    var h = (5 - rank) / 4 * chartH;
+    var color = rank === 1 ? '#00897b' : rank === 2 ? '#26a69a' : '#4db6ac';
+    ctx.fillStyle = color; ctx.globalAlpha = 0.85;
+    ctx.fillRect(x, chartY + chartH - h, barW2, h); ctx.globalAlpha = 1;
+    // Task label below bar
+    ctx.fillStyle = '#d5e8f5'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(t, x + barW2 / 2, chartY + chartH + 14);
+    // Rank label above bar
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('#' + rank, x + barW2 / 2, chartY + chartH - h - 8);
+  });
+}
+
+// ── INIT ──
+showScene(0);
+</script>
+</body>
+</html>
