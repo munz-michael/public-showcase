@@ -4,7 +4,7 @@
 
 ## Abstract
 
-How should an AI agent learn from experience? The landscape of agent learning approaches — from file-based institutional memory to retrieval-augmented generation to model fine-tuning — lacks a systematic comparison framework. This paper presents (1) a taxonomy of 20 agent learning paradigms organized into five categories, (2) a decision framework mapping seven trade-off axes across nine concrete approaches, and (3) an empirical benchmark comparing five learning strategies on twelve tasks spanning classification, generative, and external datasets. Our benchmark framework (129 tests, 3,300+ LOC) is fully deterministic and reproducible without LLM calls. Key finding: the Compound Learning Loop (CLL) — a file-based, git-tracked institutional memory pattern — wins 6 of 8 core benchmark tasks (McNemar p < 0.001 on key comparisons), but fails at pattern shifts until augmented with drift detection. Parameter sensitivity analysis (28 configurations, σ ≤ 0.038) confirms drift detection is robust, not overfit. A CLL+RAG hybrid becomes the optimal choice only beyond 50 rules. We validate on external data (Iris, sentiment classification) and generative tasks. We release the benchmark framework as open-source tooling for the agent learning community.
+How should an AI agent learn from experience? The landscape of agent learning approaches — from file-based institutional memory to retrieval-augmented generation to model fine-tuning — lacks a systematic comparison framework. This paper presents (1) a taxonomy of 20 agent learning paradigms organized into five categories, (2) a decision framework mapping seven trade-off axes across nine concrete approaches, and (3) an empirical benchmark comparing five learning strategies on twelve tasks spanning classification, generative, and external datasets. Our benchmark framework (181 tests, 5,200+ LOC) is fully deterministic and reproducible without LLM calls. Key finding: the Compound Learning Loop (CLL) — a file-based, git-tracked institutional memory pattern — wins 6 of 8 core benchmark tasks (McNemar p < 0.001 on key comparisons), but fails at pattern shifts until augmented with drift detection. Parameter sensitivity analysis (28 configurations, σ ≤ 0.038) confirms drift detection is robust, not overfit. A CLL+RAG hybrid becomes the optimal choice only beyond 50 rules. We validate on external data (Iris, sentiment classification) and generative tasks. We release the benchmark framework as open-source tooling for the agent learning community.
 
 ## 1. Introduction
 
@@ -423,7 +423,7 @@ Our key contribution is not any single strategy but the comparison framework its
 
 We argue that CLL's advantages — auditability, privacy, composability — are structural, not contingent on current model limitations, and will remain relevant even as models gain native memory capabilities.
 
-We release the benchmark framework (129 tests, 3,300+ LOC, CLI with 8 commands) as open-source tooling for the agent learning community.
+We release the benchmark framework (181 tests, 5,200+ LOC, CLI with 8 commands) as open-source tooling for the agent learning community.
 
 ## A Note on Process and Transparency
 
