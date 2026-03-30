@@ -19,6 +19,13 @@ Multi-agent debate engine that pits Google Gemini against Anthropic Claude to pr
 - [Sycophancy Benchmark](./lean-multi-agent-debate/benchmarks/sycophancy_compare.py)
 - [Research Findings](./lean-multi-agent-debate/BACKLOG.md#research-findings-2026-03-13)
 
+### [Agent Learning Approaches — How AI Agents Learn](./agent-learning-approaches/)
+Empirical benchmark comparing seven agent learning strategies (CLL, RAG, Reflexion, ICL, CLL+RAG, Debate, SimLLM) across 14 tasks. Includes a taxonomy of 20 learning paradigms, a practitioner's decision framework, ablation study, statistical validation (McNemar p<0.001, Cohen's h effect sizes), and real LLM validation with Claude Haiku. Key finding: file-based institutional memory (CLL) wins 6/8 core tasks but fails on complex coding-agent scenarios where RAG dominates.
+
+- [Paper](./agent-learning-approaches/how_ai_agents_learn_taxonomy_and_empirical_comparison.md)
+- [Interactive Explainer](./agent-learning-approaches/explainer.html)
+- [LinkedIn Summary](./agent-learning-approaches/linkedin_post.md)
+
 ### [Degressive Democracy](./degressive-democracy/)
 Agent-based simulation of irreversible vote withdrawal as democratic accountability mechanism. 249 tests, formal Nash proof, Prospect Theory satisfaction model, Germany-specific scenarios, interactive dashboard. Shows that promise-keeping is Nash equilibrium, populists are always eliminated, and at municipal level the mechanism works as dormant institution.
 
