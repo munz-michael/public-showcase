@@ -90,7 +90,7 @@ KIS employs a two-phase architecture inspired by biological immunity (Figure~\re
 \node[box, fill=orange!15, right=1.0cm of input] (innate) {Innate\\Classifier};
 
 % Gate decision
-\node[box, fill=green!15, below=0.7cm of innate] (healthy) {\texttt{healthy}};
+\node[box, fill=green!15, below=1.4cm of innate] (healthy) {\texttt{healthy}};
 
 % Phase 0
 \node[box, fill=purple!12, right=1.0cm of innate] (memory) {Immune\\Memory};
@@ -98,14 +98,14 @@ KIS employs a two-phase architecture inspired by biological immunity (Figure~\re
 % Phase 2 detectors
 \node[box, fill=red!12, right=1.0cm of memory] (detectors) {Adaptive\\Detectors};
 
-% Detector details below
-\node[font=\scriptsize, below=0.15cm of detectors, text width=2.2cm, align=center] (dlist) {Halluc.\ / Stale.\\Bias / Contrad.};
+% Detector details below — shifted right to avoid known-arrow overlap
+\node[font=\scriptsize, below right=0.15cm and -0.3cm of detectors, text width=2.2cm, align=center] (dlist) {Halluc.\ / Stale.\\Bias / Contrad.};
 
 % Output
 \node[box, fill=yellow!15, right=1.0cm of detectors] (output) {Scan\\Result};
 
 % Hybrid search
-\node[box, fill=cyan!10, below=0.7cm of detectors] (search) {Hybrid\\Search};
+\node[box, fill=cyan!10, below=1.4cm of detectors] (search) {Hybrid\\Search};
 
 % Arrows
 \draw[arr] (input) -- (innate);
@@ -116,7 +116,7 @@ KIS employs a two-phase architecture inspired by biological immunity (Figure~\re
 \draw[arr] (search) -- (detectors);
 
 % Memory shortcut
-\draw[arr] (memory.south) -- ++(0,-0.35) -| node[lbl, near start, below] {known} (output.south);
+\draw[arr] (memory.south) -- ++(0,-1.1) -| node[lbl, near start, below] {known} (output.south);
 
 % Phase labels
 \begin{scope}[on background layer]
