@@ -1,0 +1,41 @@
+{
+  "title": "Layered LLM Defense: A Biologically-Inspired Defense-in-Depth Architecture for Large Language Models",
+  "description": "<p><strong>Layered LLM Defense (LLD)</strong> is a four-layer defense-in-depth framework for Large Language Models combining formal verification, antifragile learning, information-theoretic interface hardening, and moving target defense, with a set of biologically-inspired architectural primitives (Hormesis, Immune Memory, Microbiome, Self-Adversarial Loop with thymus selection, Fever mode, Herd Immunity).</p><p><strong>Live-LLM validation.</strong> 100 attack vectors against Llama-3.3-70B via Groq: raw ASR 7.0%, refusal-corrected ASR 0&ndash;2%, FPR 0.0% (measured on a 40-input clean baseline, likely optimistic). Mean latency 2.22 ms (~100x faster than LLM inference itself).</p><p><strong>Ablation study on 510-vector simulated benchmark</strong> (HarmBench markers + GCG/AutoDAN/PAIR adversarial-suffix patterns): Vanilla configuration 89.8% ASR, Bio-Off configuration 71.2% ASR. The Vanilla &rarr; Bio-Off gain of 18.6 percentage points is the most transferable claim. The further drop to ~0% in the Full configuration is partly a simulation artifact: the Microbiome whitelist easily flags abstract markers that do not appear in any clean baseline.</p><p><strong>No \"perfect defense\" claim.</strong> Honest open issues: simulation artifacts in the ablation, small live-LLM sample (100 vectors), 0.0% FPR likely optimistic, no head-to-head LlamaGuard run yet (adapter ready), 2 borderline bypass cases await human verdict, no human red team, single author, not peer reviewed. All limitations documented in the report.</p><p><strong>Open source</strong> under Apache 2.0. Standard-library Python, 453 deterministic unit tests (no LLM calls, no network calls), no third-party dependencies for the core. The author is actively looking for collaborators to run real-LLM benchmarks at scale, perform independent red-teaming, and evaluate against production traffic.</p>",
+  "creators": [
+    {
+      "name": "Michael Munz",
+      "affiliation": "Independent researcher",
+      "orcid": null
+    }
+  ],
+  "upload_type": "publication",
+  "publication_type": "report",
+  "access_right": "open",
+  "license": "apache-2.0",
+  "keywords": [
+    "large language models",
+    "LLM security",
+    "jailbreak defense",
+    "defense in depth",
+    "antifragile systems",
+    "biologically inspired security",
+    "HarmBench",
+    "ablation study",
+    "moving target defense",
+    "formal verification"
+  ],
+  "subjects": [
+    {
+      "term": "Computer Security",
+      "identifier": "https://id.loc.gov/authorities/subjects/sh90001862",
+      "scheme": "url"
+    }
+  ],
+  "language": "eng",
+  "communities": [
+    {"identifier": "ai-security"}
+  ],
+  "notes": "This is a working research artifact, not a peer-reviewed publication. Reviewers and replication efforts are explicitly welcomed. The defense pipeline is implemented in Python standard library only with no third-party dependencies.",
+  "version": "0.1.0",
+  "related_identifiers": []
+}

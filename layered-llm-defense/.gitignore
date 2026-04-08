@@ -1,0 +1,24 @@
+# Secrets
+.env
+*.env
+!.env.example
+
+# SQLite databases (may contain attack patterns / test data)
+*.db
+*.sqlite
+*.sqlite3
+
+# Benchmark outputs (may contain raw LLM outputs not for redistribution)
+groq_results/
+benchmark_outputs/
+outputs/groq_run_*.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/

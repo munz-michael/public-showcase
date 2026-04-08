@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lld-defense"
+version = "0.1.0"
+description = "Layered LLM Defense — biologically-inspired defense-in-depth for large language models"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Michael Munz" },
+]
+keywords = [
+    "llm-security",
+    "jailbreak-defense",
+    "defense-in-depth",
+    "antifragile",
+    "harmbench",
+    "ablation-study",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+# Core has zero third-party dependencies — pure Python stdlib.
+dependencies = []
+
+[project.optional-dependencies]
+# For running benchmarks against real LLMs via Groq (uses urllib only,
+# but we may add structured logging or progress bars).
+benchmark = []
+# For running the test suite.
+test = [
+    "pytest>=7",
+]
+# For building documentation.
+docs = []
+
+[project.urls]
+Homepage = "https://github.com/munz-michael/public-showcase/tree/main/layered-llm-defense"
+Documentation = "https://github.com/munz-michael/public-showcase/tree/main/layered-llm-defense#readme"
+Repository = "https://github.com/munz-michael/public-showcase/tree/main/layered-llm-defense"
+Issues = "https://github.com/munz-michael/public-showcase/issues"
+Changelog = "https://github.com/munz-michael/public-showcase/blob/main/layered-llm-defense/CHANGELOG.md"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["lld*"]
+exclude = ["_archive*", "outputs*", "concepts*", "tests*", "examples*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-q"
