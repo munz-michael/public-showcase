@@ -26,6 +26,16 @@ Empirical benchmark comparing seven agent learning strategies (CLL, RAG, Reflexi
 - [Interactive Explainer](./agent-learning-approaches/explainer.html)
 - [LinkedIn Summary](./agent-learning-approaches/linkedin_post.md)
 
+### [Layered LLM Defense (LLD)](./layered-llm-defense/)
+Biologically-inspired defense-in-depth framework for Large Language Models. Four orthogonal layers (formal verification, antifragile shell, information-theoretic interface, moving target defense) plus six biological primitives (Hormesis, Immune Memory, Microbiome, Self-Adversarial Loop with thymus selection, Fever mode, Herd Immunity). Includes an ablation study isolating the contribution of each architectural step (Vanilla → Bio-Off transferable gain of 18.6 percentage points on a 510-vector simulated benchmark) and a real-LLM evaluation against Llama-3.3-70B via Groq with refusal-corrected ASR of 0–2% on a small 100-vector sample. Standard-library Python, 453 deterministic unit tests, Apache 2.0. Honest about every limitation. Looking for collaborators for real-LLM benchmarking at scale, independent red-teaming, and production traffic evaluation.
+
+- [Interactive Explainer](./layered-llm-defense/explainer.html)
+- [Source Code](./layered-llm-defense/lld/)
+- [Technical Report](./layered-llm-defense/outputs/technical_report_2026-04-07.md)
+- [Executive Summary](./layered-llm-defense/outputs/executive_summary_2026-04-08.md)
+- [Limitations Report](./layered-llm-defense/outputs/limitations_report_2026-04-07.md)
+- [Quickstart Example](./layered-llm-defense/examples/quickstart.py)
+
 ### [Degressive Democracy](./degressive-democracy/)
 Agent-based simulation of irreversible vote withdrawal as democratic accountability mechanism. 249 tests, formal Nash proof, Prospect Theory satisfaction model, Germany-specific scenarios, interactive dashboard. Shows that promise-keeping is Nash equilibrium, populists are always eliminated, and at municipal level the mechanism works as dormant institution.
 
