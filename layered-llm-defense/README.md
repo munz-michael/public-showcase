@@ -13,7 +13,11 @@ Standard-library Python. 453 tests passing in ~6 seconds. Apache 2.0.
 
 > **🔬 Looking for collaborators.** This is a single-author research artifact built without industry infrastructure. We need help with **(1) real-LLM benchmarking at scale**, **(2) independent red-teaming**, and **(3) production traffic evaluation** &mdash; three things the author cannot do alone. See the [Call for collaborators](#call-for-collaborators) section.
 
+![Four-layer architecture](figures/fig_1_architecture.png)
+
 ## Headline result
+
+![Ablation result: Vanilla 89.8% → Bio-Off 71.2% → Full 0.0%, with 18.6 pp transferable gain marked](figures/fig_2_ablation.png)
 
 > **No "0% perfect defense" claim.** No system is 100% secure, and LLD
 > does not claim to be. The numbers below come from a small live
@@ -37,6 +41,8 @@ Groq API:
 For context, published numbers for LlamaGuard sit around 10–15% ASR
 and RAIN around 10–12%. We have **not** yet run a head-to-head
 comparison on the same dataset. The adapter is implemented and ready.
+
+![Live-LLM ASR vs published defenses on a small 100-vector sample](figures/fig_3_baseline_comparison.png)
 
 ### What the ablation showed (simulated benchmark)
 
@@ -207,6 +213,14 @@ layered-llm-defense/
     ├── executive_summary_2026-04-08.md      # 1-page summary
     └── limitations_report_2026-04-07.md     # honest open-issue tracking
 ```
+
+## Performance
+
+Mean defense latency is approximately 2.22 ms with p95 around
+5.75 ms, roughly 100x faster than typical LLM inference itself
+(100–1000 ms per request). The overhead is structurally negligible.
+
+![Per-layer latency breakdown showing fragmenter and microbiome as the two costliest stages](figures/fig_4_layer_latency.png)
 
 ## Real-LLM benchmarking
 

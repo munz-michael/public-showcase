@@ -216,6 +216,8 @@ the Countermind approach.
 
 ## 3. Architecture
 
+![Figure 1: Four-layer architecture overview](../figures/fig_1_architecture.png)
+
 ### 3.1 Four-layer overview
 
 ```
@@ -508,6 +510,8 @@ For the real-LLM benchmark we use:
 
 ## 6. Results
 
+![Figure 2: Ablation result. The Vanilla → Bio-Off transferable gain is the most defensible empirical claim. The further drop to ~0% in the Full configuration is partly a simulation artifact.](../figures/fig_2_ablation.png)
+
 ### 6.1 Ablation study
 
 Running the three ablation configurations against the 510-vector
@@ -554,6 +558,8 @@ in the vanilla configuration.
 
 ### 6.3 Per-layer latency
 
+![Figure 4: Per-layer latency breakdown. Fragmenter and microbiome are the two costliest stages but the full pipeline still finishes in ~2.2 ms.](../figures/fig_4_layer_latency.png)
+
 The full-config mean latency is 2.22 ms with p95 of 5.75 ms.
 This is approximately 100–500x faster than typical LLM inference
 itself (10²–10³ ms per request), so the defense overhead is
@@ -565,6 +571,8 @@ whitelist deviation scoring). Both are amenable to caching or
 parallelization if sub-millisecond latency is required.
 
 ### 6.4 Real LLM benchmark (Llama-3.3-70B via Groq)
+
+![Figure 3: Live-LLM ASR vs published defenses on a small 100-vector sample. We do not claim to beat LlamaGuard; we report comparable numbers on a much smaller sample.](../figures/fig_3_baseline_comparison.png)
 
 **Setup:**
 - 100 attack vectors (subset of the extended 510 — original HarmBench-style markers)
