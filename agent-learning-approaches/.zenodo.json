@@ -1,0 +1,28 @@
+{
+  "title": "Agent Learning Approaches: A Practitioner's Taxonomy and Empirical Comparison",
+  "description": "<p><strong>Agent Learning Approaches</strong> is a systematic empirical comparison of seven agent learning strategies (CLL, RAG, Reflexion, ICL, CLL+RAG, Debate, SimLLM) across 14 reproducible tasks. Includes a taxonomy of 20 agent learning paradigms organised into 5 categories (Weight-Based, Context-Based, Hybrid, Structural, Meta) and a 9&times;7 trade-off matrix as a decision framework for practitioners.</p><p><strong>Key findings:</strong> CLL (file-based institutional memory) wins 6 of 8 core tasks but fails on complex coding-agent scenarios where RAG dominates (50+ rules, code review, error triage). Reflexion wins on pattern shifts. Debate is the most robust allrounder. McNemar &chi;&sup2; tests confirm CLL vs RAG differences are statistically significant (p &lt; 0.0001), Cohen's h effect sizes quantify the differences. Multi-seed analysis confirms &sigma;=0.000 on 4/7 tasks.</p><p><strong>Reproducibility:</strong> 181 deterministic tests, no API key required for full reproduction (SimLLM mode). Real-LLM validation with Claude Haiku confirmed strategy rankings using 150 API calls (~$0.04).</p><p><strong>Open source</strong> under Apache 2.0.</p>",
+  "creators": [
+    {
+      "name": "Munz, Michael",
+      "affiliation": "Independent researcher"
+    }
+  ],
+  "upload_type": "publication",
+  "publication_type": "report",
+  "access_right": "open",
+  "license": "apache-2.0",
+  "keywords": [
+    "agent learning",
+    "AI agents",
+    "RAG",
+    "in-context learning",
+    "fine-tuning",
+    "institutional memory",
+    "benchmark",
+    "ablation study",
+    "decision framework",
+    "taxonomy"
+  ],
+  "language": "eng",
+  "notes": "Single-author research artifact. 181 deterministic unit tests. SimLLM mode requires no API key for full reproducibility. Real-LLM validation via Claude Haiku."
+}

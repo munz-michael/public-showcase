@@ -1,0 +1,26 @@
+{
+  "title": "Degressive Democracy: Agent-Based Simulation of Irreversible Vote Withdrawal as a Democratic Accountability Mechanism",
+  "description": "<p><strong>Degressive Democracy</strong> is an agent-based simulation of a proposed democratic accountability mechanism: citizens can withdraw their vote from an elected politician once per legislative term, irreversibly. This creates continuous accountability pressure independent of the next election cycle.</p><p><strong>Findings:</strong> Promise-keeping is a Nash equilibrium under the mechanism. Populists are eliminated in every simulated configuration. At municipal level, the mere existence of the mechanism suffices as deterrence; no withdrawals are needed in equilibrium. The simulation models six citizen archetypes, five politician strategies, and four power models, with a Prospect Theory satisfaction model and Germany-specific scenarios.</p><p><strong>Methodology:</strong> 249 deterministic unit tests, 21 simulation modules, formal Nash proof in <code>concepts/nash_proof.md</code>, sensitivity tornado analysis. Interactive HTML dashboard for exploring the parameter space.</p><p><strong>Open source</strong> under Apache 2.0.</p>",
+  "creators": [
+    {
+      "name": "Munz, Michael",
+      "affiliation": "Independent researcher"
+    }
+  ],
+  "upload_type": "publication",
+  "publication_type": "report",
+  "access_right": "open",
+  "license": "apache-2.0",
+  "keywords": [
+    "democratic theory",
+    "agent-based simulation",
+    "Nash equilibrium",
+    "accountability mechanism",
+    "voting systems",
+    "prospect theory",
+    "political science",
+    "game theory"
+  ],
+  "language": "eng",
+  "notes": "Single-author research artifact. 249 deterministic unit tests. Includes formal Nash equilibrium proof and an interactive dashboard for parameter exploration."
+}

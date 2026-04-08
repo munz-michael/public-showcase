@@ -1,0 +1,28 @@
+{
+  "title": "Lean Multi-Provider Debate Framework: Cross-Provider Adversarial Discourse for Calibrated AI Answers",
+  "description": "<p><strong>Lean Multi-Provider Debate</strong> is a multi-agent debate engine that pits two heterogeneous AI providers (Google Gemini and Anthropic Claude) against each other to produce calibrated, adversarially-vetted answers. Cross-provider debate prevents same-model echo chambers; Delphi iterative refinement and argument-graph construction structure the discourse; probabilistic calibration tracking measures answer quality over rounds.</p><p><strong>Empirical sycophancy research:</strong> A two-dimensional model demonstrates that echo-chamber effects and false-consensus dynamics are independent failure modes that require different interventions. Same-provider debates exhibit higher sycophancy than cross-provider debates, even when prompts are identical.</p><p><strong>Features:</strong> Cross-provider debate, Delphi iterative refinement, argument graph construction, probabilistic calibration tracking, post-debate interactive chat, semantic similarity analysis between debate turns.</p><p><strong>Open source</strong> under Apache 2.0.</p>",
+  "creators": [
+    {
+      "name": "Munz, Michael",
+      "affiliation": "Independent researcher"
+    }
+  ],
+  "upload_type": "publication",
+  "publication_type": "report",
+  "access_right": "open",
+  "license": "apache-2.0",
+  "keywords": [
+    "multi-agent debate",
+    "AI systems",
+    "calibration",
+    "sycophancy",
+    "cross-provider",
+    "argument graphs",
+    "adversarial discourse",
+    "echo chamber",
+    "Gemini",
+    "Claude"
+  ],
+  "language": "eng",
+  "notes": "Single-author research artifact. Cross-provider design (Google Gemini + Anthropic Claude) is the central design choice; same-provider debate is empirically shown to produce higher sycophancy."
+}
