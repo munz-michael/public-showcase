@@ -7,7 +7,7 @@ learning, information-theoretic interface hardening, and moving target
 defense, with biologically-inspired primitives (Hormesis, Immune Memory,
 Microbiome, Self-Adversarial Loop, Fever mode, Herd Immunity).
 
-Standard-library Python. 453 tests passing in ~6 seconds. Apache 2.0.
+Standard-library Python. 453 tests passing in ~6 seconds. PolyForm Noncommercial 1.0.
 
 > **[Open the interactive explainer →](explainer.html)** &nbsp;|&nbsp; [Technical report](outputs/technical_report_2026-04-07.md) &nbsp;|&nbsp; [Executive summary](outputs/executive_summary_2026-04-08.md)
 
@@ -171,7 +171,7 @@ else:
 ```
 layered-llm-defense/
 ├── README.md                    # this file
-├── LICENSE                      # Apache 2.0
+├── LICENSE                      # PolyForm Noncommercial 1.0
 ├── pyproject.toml               # pip-installable as `lld-defense`
 ├── CHANGELOG.md                 # release notes
 ├── CONTRIBUTING.md              # how to contribute
@@ -357,7 +357,7 @@ on LLD's verdict — we just want to measure it.
 ### What you get back
 The author will:
 - Treat your findings as the canonical evidence in the next version
-- Not gatekeep or paywall the framework — Apache 2.0 forever
+- Not gatekeep or paywall the framework — PolyForm Noncommercial 1.0 (converts to Apache 2.0 after Change Date)
 - Credit you in [`CHANGELOG.md`](CHANGELOG.md) and any future paper
 - Not put your findings behind an NDA or pre-publication embargo
 

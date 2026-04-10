@@ -68,7 +68,7 @@ Two non-negotiable rules:
 ## License
 
 By contributing, you agree that your contribution will be released
-under the same license as the project (Apache 2.0 for code,
+under the same license as the project (PolyForm Noncommercial 1.0 for code,
 CC-BY-4.0 for documentation).
 
 ## Code of conduct

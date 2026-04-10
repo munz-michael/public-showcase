@@ -46,7 +46,7 @@ publication.
 - 453 unit tests covering all modules
 - Technical report (~3000 lines, English)
 - Honest limitations report
-- Apache 2.0 license, pyproject.toml for pip-installable layout
+- PolyForm Noncommercial 1.0 license, pyproject.toml for pip-installable layout
 
 ### Changed
 - Microbiome behavior: standalone blocking removed; now contributes

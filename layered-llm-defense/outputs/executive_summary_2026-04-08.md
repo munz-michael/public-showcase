@@ -61,7 +61,7 @@ is likely optimistic given the small clean baseline.
 Not deployed in production. Not a head-to-head LlamaGuard comparison
 (adapter ready). No human red team. Single author.
 
-**Open source.** Apache 2.0 license, standard-library Python, 453
+**Open source.** PolyForm Noncommercial 1.0 license, standard-library Python, 453
 unit tests passing in ~7 seconds, no third-party dependencies for
 the core, working examples in `examples/`. Reproducibility:
 

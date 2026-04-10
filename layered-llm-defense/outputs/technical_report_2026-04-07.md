@@ -11,7 +11,7 @@ authors:
     orcid: "null"
 date: "2026-04-07"
 version: "0.1.0-draft"
-license: "CC-BY-4.0 (text), Apache-2.0 (code)"
+license: "CC-BY-4.0 (text), PolyForm-Noncommercial-1.0.0 (code)"
 keywords:
   - large language models
   - LLM security
@@ -68,7 +68,7 @@ biological primitives (Hormesis, Immune Memory, Microbiome) are
 formally specified statistical filters &mdash; the biological framing
 is a useful reasoning aid, not a claim of biological correctness.
 
-We release the implementation as open source under Apache 2.0. We
+We release the implementation as open source under PolyForm Noncommercial 1.0. We
 explicitly document every limitation, including the simulation
 artifacts in our ablation, the small live-LLM sample size, the lack
 of head-to-head LlamaGuard comparison data, and the absence of
@@ -139,7 +139,7 @@ This report makes the following contributions:
 
 6. **An open-source implementation** in standard-library Python
    (no third-party dependencies for the core; Groq integration is
-   stdlib `urllib`-based) under Apache 2.0.
+   stdlib `urllib`-based) under PolyForm Noncommercial 1.0.
 
 ### 1.3 What this report is and is not
 

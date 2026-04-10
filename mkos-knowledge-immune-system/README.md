@@ -109,4 +109,4 @@ This project was developed with AI coding assistance. Architecture, research que
 
 ## License
 
-MIT
+PolyForm Noncommercial 1.0

@@ -135,7 +135,7 @@ This project was developed with AI coding assistance. Architecture, research que
 
 ## License
 
-Apache 2.0 — see [LICENSE](LICENSE)
+PolyForm Noncommercial 1.0 — see [LICENSE](LICENSE)
 
 ## Author
 
