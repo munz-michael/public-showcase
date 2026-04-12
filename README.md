@@ -10,7 +10,6 @@ Selected research projects. Papers, benchmarks, and interactive explainers. All 
 Epistemological identity for knowledge and AI agents. A 7-dimensional taxonomy with a formally proven Meet-Semilattice composition algebra, dual-fingerprinting for metadata inconsistency detection (82% misclassification found), agent behavioral profiling with drift detection, and portable Knowledge Units. 914 tests. [DOI: 10.5281/zenodo.19519682](https://doi.org/10.5281/zenodo.19519682)
 
 - [Research Paper (PDF)](./knowledge-fingerprint/paper/knowledge_fingerprint_paper.pdf)
-- [Interactive Explainer](./knowledge-fingerprint/explainer.html)
 
 ### [MKOS — Mycelial Knowledge Operating System](./mkos-knowledge-immune-system/)
 Automated quality management for knowledge bases using a two-phase detection pipeline inspired by biological immune systems. Detects hallucinations, staleness, bias, and contradictions. Macro-F1 0.975 vs. LLM Few-Shot 0.842 (McNemar p < 0.003).
