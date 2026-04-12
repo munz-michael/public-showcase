@@ -49,50 +49,6 @@ McNemar p < 0.003, permutation test p < 0.003. Same underlying model (Claude Son
 
 **Limitations:** Results are on a small, single-annotator dataset. The architecture is model-sensitive — GPT-4o achieves F1 = 0.869 with the same prompts (vs. 0.975 with Claude). Independent validation on larger, multi-annotator datasets is needed.
 
-Full KQAB suite covers 4 tasks with synthetic and public (MNLI, FEVER) dataset variants, totaling 923 items.
-
-## Quick Start
-
-```bash
-pip install -e .
-cp .env.example .env   # add your ANTHROPIC_API_KEY
-
-akm setup
-akm index
-akm immune-scan --sample-size 20
-
-# Benchmark
-akm kqab --cache --variant synth
-akm kqab --cache --variant public --tasks T2,T4
-```
-
-## Project Structure
-
-```
-akm/
-├── immune/          # Two-phase detection (system.py, detectors.py, memory.py)
-├── search/          # Hybrid search: FTS5 + sqlite-vec + RRF fusion
-├── stigmergy/       # Pheromone-based component coordination
-├── quorum/          # Collective threat detection
-├── homeostasis/     # Self-regulating parameter tuning
-├── composting/      # Entropy-based knowledge recycling
-├── fermentation/    # Content verification chamber
-├── rag/             # RAG pipeline + evaluation
-├── benchmarks/      # KQAB, baselines, statistics, ablation
-├── llm/             # Claude + OpenAI clients, SQLite response cache
-├── storage/         # SQLite with FTS5, schema migrations V1–V4
-└── cli.py           # CLI entry point
-paper/               # LaTeX source + compiled PDF
-tests/               # Unit tests for all subsystems
-```
-
-## Stack
-
-- Python 3.13, SQLite FTS5, sqlite-vec
-- fastembed (BAAI/bge-small-en-v1.5, 384d)
-- Claude Sonnet 4 (default, configurable)
-- SQLite-backed LLM cache for reproducible benchmarks
-
 ## Citation
 
 ```bibtex
