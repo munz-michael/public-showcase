@@ -12,7 +12,7 @@ Epistemological identity for knowledge and AI agents. A 7-dimensional taxonomy w
 - [Research Paper (PDF)](./knowledge-fingerprint/paper/knowledge_fingerprint_paper.pdf)
 
 ### [MKOS — Mycelial Knowledge Operating System](./mkos-knowledge-immune-system/)
-Automated quality management for knowledge bases using a two-phase detection pipeline inspired by biological immune systems. Detects hallucinations, staleness, bias, and contradictions. Macro-F1 0.975 vs. LLM Few-Shot 0.842 (McNemar p < 0.003).
+Automated quality management for knowledge bases using a two-phase detection pipeline inspired by biological immune systems. Detects hallucinations, staleness, bias, and contradictions. Macro-F1 0.975 vs. LLM Few-Shot 0.842 (McNemar p < 0.003). [DOI: 10.5281/zenodo.19545770](https://doi.org/10.5281/zenodo.19545770)
 
 - [Paper (PDF)](./mkos-knowledge-immune-system/paper/mkos_paper.pdf)
 
