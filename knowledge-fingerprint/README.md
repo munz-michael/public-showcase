@@ -9,7 +9,7 @@ analysis, and portable Knowledge Units.
 
 Standard-library Python. 914 tests passing. `pip install kfp-fingerprint`. PolyForm Noncommercial 1.0.
 
-> **[Open the interactive explainer](explainer.html)** | [Research paper (PDF)](paper/knowledge_fingerprint_paper.pdf) | [DOI: 10.5281/zenodo.19519682](https://doi.org/10.5281/zenodo.19519682)
+ | [Research paper (PDF)](paper/knowledge_fingerprint_paper.pdf) | [DOI: 10.5281/zenodo.19519682](https://doi.org/10.5281/zenodo.19519682)
 
 > **Looking for collaborators.** This is a single-author research artifact.
 > We need help with **(1) integration into production RAG systems**,
@@ -317,7 +317,7 @@ single author cannot provide:
 knowledge-fingerprint/
 ├── README.md                              # This file
 ├── LICENSE                                # PolyForm Noncommercial 1.0
-├── explainer.html                         # Interactive HTML walkthrough
+
 ├── paper/
 │   └── knowledge_fingerprint_paper.pdf    # Research paper
 └── figures/                               # Publication-quality diagrams

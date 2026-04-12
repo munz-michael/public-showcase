@@ -2,7 +2,7 @@
 
 [![License: PolyForm Noncommercial 1.0](https://img.shields.io/badge/License-PolyForm_NC_1.0-blue.svg)](https://polyformproject.org/licenses/noncommercial/1.0.0/)
 
-Selected research projects. Papers, benchmarks, and interactive explainers. All projects include an [AI transparency note](#transparency).
+Selected research projects. Papers, benchmarks, and results. All projects include an [AI transparency note](#transparency).
 
 ## Projects
 
