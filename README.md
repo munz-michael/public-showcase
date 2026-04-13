@@ -19,7 +19,7 @@ Automated quality management for knowledge bases using a two-phase detection pip
 ### [Layered LLM Defense (LLD)](./layered-llm-defense/)
 Biologically-inspired defense-in-depth for Large Language Models. Four orthogonal layers plus six biological primitives. Ablation study: Vanilla to Bio-Off transferable gain of 18.6 percentage points. Real-LLM evaluation against Llama-3.3-70B: refusal-corrected ASR 0-2%. 453 tests. Looking for collaborators.
 
-- [Architecture & Results](./layered-llm-defense/README.md)
+- [Paper (PDF)](./layered-llm-defense/paper/layered_llm_defense_paper.pdf). [DOI: 10.5281/zenodo.19554086](https://doi.org/10.5281/zenodo.19554086)
 
 ### [Lean Multi-Provider Debate Framework](./lean-multi-agent-debate/)
 Multi-agent debate engine pitting Google Gemini against Anthropic Claude. Empirical sycophancy research: heterogeneous providers reduce echo chamber effects vs. homogeneous setups.
