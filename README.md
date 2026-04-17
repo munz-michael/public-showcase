@@ -31,6 +31,11 @@ Empirical benchmark comparing seven agent learning strategies across 14 tasks. T
 
 - [Paper](./agent-learning-approaches/how_ai_agents_learn_taxonomy_and_empirical_comparison.md)
 
+### [Knowledge OS](./knowledge-os/)
+Seven-dimension trust layer for knowledge in RAG systems. Persistent, per-chunk quality metadata across identity, genesis, health, verification, relevance, ecology, and temporal validity. Validated on a custom corpus of 29,419 publicly available healthcare chunks: TER reduced 38.5% (95% CI: 12.5–66.7%) with zero relevance loss. Adaptive challenge engine with hormesis-capped mass bonus. [DOI: 10.5281/zenodo.19629734](https://doi.org/10.5281/zenodo.19629734)
+
+- [Paper (PDF)](./knowledge-os/paper/knowledge_os_paper.pdf)
+
 ### [Degressive Democracy](./degressive-democracy/)
 Agent-based simulation of irreversible vote withdrawal as democratic accountability mechanism. Formal Nash proof, Prospect Theory satisfaction model, Germany-specific scenarios. Promise-keeping is Nash equilibrium, populists are always eliminated.
 
