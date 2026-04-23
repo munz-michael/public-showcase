@@ -36,6 +36,11 @@ Seven-dimension trust layer for knowledge in RAG systems. Persistent, per-chunk 
 
 - [Paper (PDF)](./knowledge-os/paper/knowledge_os_paper.pdf)
 
+### [Blind Watchdog Protocol (BWP)](./blind-watchdog-protocol/)
+Anonymous mutual oversight for autonomous multi-agent systems. Each agent has one hidden watchdog — no one knows who watches whom. Compliance via Panopticon equilibrium, not centralized authority. Nash equilibrium theorem (closed-form, TLC model-checked). 10 composable plugins, 10 biological analogies, 3-tier Sybil resistance, optimistic slashing, hybrid oversight. 422 tests. [DOI: 10.5281/zenodo.19705295](https://doi.org/10.5281/zenodo.19705295)
+
+- [Paper (PDF)](./blind-watchdog-protocol/paper/blind_watchdog_protocol_paper.pdf)
+
 ### [Degressive Democracy](./degressive-democracy/)
 Agent-based simulation of irreversible vote withdrawal as democratic accountability mechanism. Formal Nash proof, Prospect Theory satisfaction model, Germany-specific scenarios. Promise-keeping is Nash equilibrium, populists are always eliminated.
 
